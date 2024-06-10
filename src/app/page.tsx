@@ -1,5 +1,6 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { Check } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -37,6 +38,16 @@ export default function Home() {
                 </li>
               </div>
             </ul>
+          </div>
+        </div>
+        <div className="col-span-full lg:col-span-1 w-full flex justify-center px-8 sm:px-16 md:px-0 mt-32 lg:mx-0 lg:mt-20 h-fit">
+          <div className="relative w-80 h-80">
+            <Image
+              src="/hero-image.png"
+              fill
+              alt="hero-image"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </MaxWidthWrapper>
