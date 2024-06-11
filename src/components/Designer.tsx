@@ -3,17 +3,17 @@
 import HandleComponent from "@/components/HandleComponent";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { RadioGroup } from "@headlessui/react";
 import { useRef, useState } from "react";
 import {
-  COLORS,
-  // FINISHES,
-  // MATERIALS,
-  // MODELS,
-} from "@/validators/option-validator";
+  BASE_PRICE,
+  PRODUCT_COLORS,
+  PRODUCT_SIZE,
+  PRODUCT_TYPE,
+} from "@/constants/product-options";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
-// import { BASE_PRICE } from '@/config/products';
 // import { useUploadThing } from '@/lib/uploadthing';
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -39,9 +38,13 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
   const router = useRouter();
 
   const [options, setOptions] = useState<{
-    color: (typeof COLORS)[number];
+    color: (typeof PRODUCT_COLORS)[number];
+    product_type: (typeof PRODUCT_TYPE)[number];
+    product_size: (typeof PRODUCT_SIZE)[number];
   }>({
-    color: COLORS[0],
+    color: PRODUCT_COLORS[0],
+    product_type: PRODUCT_TYPE[0],
+    product_size: PRODUCT_SIZE[0],
   });
 
   const [renderedDimensions, setRenderedDimensions] = useState(
@@ -87,7 +90,7 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
             <NextImage
               fill
               alt="phone image"
-              src={`/${options.color.value}-tshirt-template.png`}
+              src={`/${options.color.value}-${options.product_type.value}-template.png`}
               className="pointer-events-none z-10 select-none absolute inset-0 w-full h-full object-cover"
             />
           </AspectRatio>
@@ -171,13 +174,13 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
                 >
                   <Label>Color: {options.color.label}</Label>
                   <div className="mt-3 flex items-center space-x-3">
-                    {COLORS.map((color) => (
+                    {PRODUCT_COLORS.map((color) => (
                       <RadioGroup.Option
                         key={color.label}
                         value={color}
                         className={({ active, checked }) =>
                           cn(
-                            "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 active:ring-0 focus:ring-0 active:outline-none focus:outline-none border-2 border-transparent",
+                            "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 active:ring-0 focus:ring-0 active:outline-none focus:outline-none border-2 border-transparent ",
                             {
                               [`border-${color.tw}`]: active || checked,
                             }
@@ -195,143 +198,119 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
                   </div>
                 </RadioGroup>
 
-                {/* <div className='relative flex flex-col gap-3 w-full'>
-                  <Label>Model</Label>
+                <div className="relative flex flex-col gap-3 w-full">
+                  <Label>Product Type</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        variant='outline'
-                        role='combobox'
-                        className='w-full justify-between'>
-                        {options.model.label}
-                        <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {options.product_type.label}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {MODELS.options.map((model) => (
+                      {PRODUCT_TYPE.map((product_type) => (
                         <DropdownMenuItem
-                          key={model.label}
+                          key={product_type.label}
                           className={cn(
-                            'flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100',
+                            "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100 w-full",
                             {
-                              'bg-zinc-100':
-                                model.label === options.model.label,
+                              "bg-zinc-100":
+                                product_type.label ===
+                                options.product_type.label,
                             }
                           )}
                           onClick={() => {
-                            setOptions((prev) => ({ ...prev, model }))
-                          }}>
+                            setOptions((prev) => ({ ...prev, product_type }));
+                          }}
+                        >
                           <Check
                             className={cn(
-                              'mr-2 h-4 w-4',
-                              model.label === options.model.label
-                                ? 'opacity-100'
-                                : 'opacity-0'
+                              "mr-2 h-4 w-4",
+                              product_type.label === options.product_type.label
+                                ? "opacity-100"
+                                : "opacity-0"
                             )}
                           />
-                          {model.label}
+                          {product_type.label}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div> */}
+                </div>
 
-                {/* {[MATERIALS, FINISHES].map(
-                  ({ name, options: selectableOptions }) => (
-                    <RadioGroup
-                      key={name}
-                      value={options[name]}
-                      onChange={(val) => {
-                        setOptions((prev) => ({
-                          ...prev,
-                          [name]: val,
-                        }))
-                      }}>
-                      <Label>
-                        {name.slice(0, 1).toUpperCase() + name.slice(1)}
-                      </Label>
-                      <div className='mt-3 space-y-4'>
-                        {selectableOptions.map((option) => (
-                          <RadioGroup.Option
-                            key={option.value}
-                            value={option}
-                            className={({ active, checked }) =>
-                              cn(
-                                'relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between',
-                                {
-                                  'border-primary': active || checked,
-                                }
-                              )
-                            }>
-                            <span className='flex items-center'>
-                              <span className='flex flex-col text-sm'>
-                                <RadioGroup.Label
-                                  className='font-medium text-gray-900'
-                                  as='span'>
-                                  {option.label}
-                                </RadioGroup.Label>
-
-                                {option.description ? (
-                                  <RadioGroup.Description
-                                    as='span'
-                                    className='text-gray-500'>
-                                    <span className='block sm:inline'>
-                                      {option.description}
-                                    </span>
-                                  </RadioGroup.Description>
-                                ) : null}
-                              </span>
-                            </span>
-
-                            <RadioGroup.Description
-                              as='span'
-                              className='mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right'>
-                              <span className='font-medium text-gray-900'>
-                                {formatPrice(option.price / 100)}
-                              </span>
-                            </RadioGroup.Description>
-                          </RadioGroup.Option>
-                        ))}
-                      </div>
-                    </RadioGroup>
-                  )
-                )} */}
+                <div className="relative flex flex-col gap-3 w-full">
+                  <Label>Sizes</Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {options.product_size.label}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {PRODUCT_SIZE.map((product_size) => (
+                        <DropdownMenuItem
+                          key={product_size.label}
+                          className={cn(
+                            "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
+                            {
+                              "bg-zinc-100":
+                                product_size.label ===
+                                options.product_size.label,
+                            }
+                          )}
+                          onClick={() => {
+                            setOptions((prev) => ({ ...prev, product_size }));
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              product_size.label === options.product_size.label
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {product_size.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
           </div>
         </ScrollArea>
 
-        {/* <div className='w-full px-8 h-16 bg-white'>
-          <div className='h-px w-full bg-zinc-200' />
-          <div className='w-full h-full flex justify-end items-center'>
-            <div className='w-full flex gap-6 items-center'>
-              <p className='font-medium whitespace-nowrap'>
-                {formatPrice(
-                  (BASE_PRICE + options.finish.price + options.material.price) /
-                    100
-                )}
+        <div className="w-full px-8 h-16 bg-white">
+          <div className="h-px w-full bg-zinc-200" />
+          <div className="w-full h-full flex justify-end items-center">
+            <div className="w-full flex gap-6 items-center">
+              <p className="font-medium whitespace-nowrap">
+                {formatPrice((BASE_PRICE + options.product_type.price) / 100)}
               </p>
               <Button
-                isLoading={isPending}
-                disabled={isPending}
+                // isLoading={isPending}
+                // disabled={isPending}
                 loadingText="Saving"
-                onClick={() =>
-                  saveConfig({
-                    configId,
-                    color: options.color.value,
-                    finish: options.finish.value,
-                    material: options.material.value,
-                    model: options.model.value,
-                  })
-                }
-                size='sm'
-                className='w-full'>
+                onClick={() => {}}
+                size="sm"
+                className="w-full"
+              >
                 Continue
-                <ArrowRight className='h-4 w-4 ml-1.5 inline' />
+                <ArrowRight className="h-4 w-4 ml-1.5 inline" />
               </Button>
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
     </div>
   );

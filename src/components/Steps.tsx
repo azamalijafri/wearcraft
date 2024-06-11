@@ -61,7 +61,7 @@ const Steps = () => {
                   >
                     {step.name}
                   </span>
-                  <span className="text-sm text-zinc-500">
+                  <span className="text-sm text-zinc-500 font-normal">
                     {step.description}
                   </span>
                 </span>

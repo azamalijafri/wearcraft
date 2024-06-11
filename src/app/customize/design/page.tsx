@@ -2,11 +2,12 @@
 
 import Designer from "@/components/Designer";
 import { toast } from "@/components/ui/use-toast";
+import { Loader } from "lucide-react";
 import { notFound, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface UploadedImage {
-  url: string;
+  base64: string;
   width: number;
   height: number;
 }
@@ -16,19 +17,24 @@ const Page: React.FC = () => {
   const [uploadedImages, setUploadedImages] = useState<
     { file: File; width: number; height: number }[]
   >([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem("uploadedImages")) return notFound();
+    setIsLoading(true);
     const images = JSON.parse(localStorage.getItem("uploadedImages") || "[]");
     const files = images.map((image: UploadedImage) =>
-      fetch(image.url)
+      fetch(image?.base64)
         .then((res) => res.blob())
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }))
-        .then((file) => ({ file, width: image.width, height: image.height }))
-        .catch(() => {
+        .then((file) => {
+          setIsLoading(false);
+          return { file, width: image.width, height: image.height };
+        })
+        .catch((error) => {
+          setIsLoading(false);
           toast({
             title: "Error processing images",
-            description: "please try again",
+            description: error.message,
             variant: "destructive",
           });
           router.push("/customize/upload");
@@ -39,8 +45,14 @@ const Page: React.FC = () => {
   }, [router]);
 
   return (
-    <div>
-      <Designer uploadedImages={uploadedImages} />
+    <div className="h-full w-full">
+      {!isLoading ? (
+        <Designer uploadedImages={uploadedImages} />
+      ) : (
+        <div className="h-full w-full flex items-center justify-center mt-20">
+          <Loader className="animate-spin" />
+        </div>
+      )}
     </div>
   );
 };

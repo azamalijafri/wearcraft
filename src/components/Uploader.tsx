@@ -2,7 +2,11 @@
 
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { Image, Loader2, MousePointerSquareDashed } from "lucide-react";
+import {
+  Image as ImageIcon,
+  Loader2,
+  MousePointerSquareDashed,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import Dropzone, { FileRejection } from "react-dropzone";
@@ -43,19 +47,27 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
 
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
-      const filesWithDimensions = acceptedFiles.map(async (file) => {
-        return new Promise<{ file: File; width: number; height: number }>(
-          (resolve) => {
+      const formattedFiles = acceptedFiles.map(async (file) => {
+        return new Promise<{
+          file: File;
+          width: number;
+          height: number;
+          base64: string;
+        }>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target?.result as string;
             const img = new window.Image();
             img.onload = () => {
-              resolve({ file, width: img.width, height: img.height });
+              resolve({ file, width: img.width, height: img.height, base64 });
             };
-            img.src = URL.createObjectURL(file);
-          }
-        );
+            img.src = base64;
+          };
+          reader.readAsDataURL(file);
+        });
       });
 
-      Promise.all(filesWithDimensions).then(onUpload);
+      Promise.all(formattedFiles).then(onUpload);
     },
     [onUpload]
   );
@@ -98,7 +110,7 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
               ) : isPending ? (
                 <Loader2 className="animate-spin h-6 w-6 text-zinc-500 mb-2" />
               ) : (
-                <Image className="h-6 w-6 text-zinc-500 mb-2" />
+                <ImageIcon className="h-6 w-6 text-zinc-500 mb-2" />
               )}
               <div className="flex flex-col justify-center mb-2 text-sm text-zinc-700">
                 {
