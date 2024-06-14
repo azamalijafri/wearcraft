@@ -1,18 +1,20 @@
 "use client";
 
-import HandleComponent from "@/components/HandleComponent";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn, formatPrice } from "@/lib/utils";
-import NextImage from "next/image";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Rnd } from "react-rnd";
-import { RadioGroup } from "@headlessui/react";
-import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { saveAs } from "file-saver";
+import NextImage from "next/image";
+import { Check, ChevronsUpDown, ArrowRight } from "lucide-react";
+import { cn, formatPrice } from "@/lib/utils";
 import {
-  BASE_PRICE,
   PRODUCT_COLORS,
   PRODUCT_SIZE,
   PRODUCT_TYPE,
+  BASE_PRICE,
 } from "@/constants/product-options";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,13 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
-// import { useUploadThing } from '@/lib/uploadthing';
-import { useToast } from "@/components/ui/use-toast";
-import { useMutation } from "@tanstack/react-query";
-// import { saveConfig as _saveConfig, SaveConfigArgs } from './actions';
-import { useRouter } from "next/navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { RadioGroup } from "@headlessui/react";
 
 interface DesignerProps {
   uploadedImages: { file: File; width: number; height: number }[];
@@ -36,6 +33,8 @@ interface DesignerProps {
 const Designer = ({ uploadedImages }: DesignerProps) => {
   const { toast } = useToast();
   const router = useRouter();
+
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [options, setOptions] = useState<{
     color: (typeof PRODUCT_COLORS)[number];
@@ -51,32 +50,102 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
     uploadedImages.map((image) => ({
       width: image?.width / 4,
       height: image?.height / 4,
-      x: 150,
-      y: 100,
+      x: 200,
+      y: 200,
     }))
   );
 
+  useEffect(() => {
+    setRenderedDimensions(
+      uploadedImages.map((image) => ({
+        width: image?.width / 4,
+        height: image?.height / 4,
+        x: 200,
+        y: 200,
+      }))
+    );
+  }, [uploadedImages]);
+
   const tshirtRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // const { startUpload } = useUploadThing('imageUploader');
+  const drawImagesOnCanvas = (
+    ctx: CanvasRenderingContext2D,
+    templateImage: HTMLImageElement,
+    save: boolean
+  ) => {
+    if (!tshirtRef.current || !containerRef.current) return;
 
-  async function saveConfiguration() {
-    // Save configuration logic
-  }
+    const { left: templateLeft, top: templateTop } =
+      tshirtRef.current.getBoundingClientRect();
+    const { left: containerLeft, top: containerTop } =
+      containerRef.current.getBoundingClientRect();
 
-  function base64ToBlob(base64: string, mimeType: string) {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: mimeType });
-  }
+    const leftOffset = templateLeft - containerLeft;
+    const topOffset = templateTop - containerTop;
+
+    const scaleX = templateImage.width / tshirtRef.current.clientWidth;
+    const scaleY = templateImage.height / tshirtRef.current.clientHeight;
+
+    const imagePromises = uploadedImages.map((image, index) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(image.file);
+        img.onload = () => {
+          const dims = renderedDimensions[index];
+
+          const x = dims?.x
+            ? (dims?.x - leftOffset) * scaleX
+            : (200 - leftOffset) * scaleX;
+          const y = dims?.y
+            ? (dims?.y - topOffset) * scaleY
+            : (200 - topOffset) * scaleY;
+          const width = dims?.width ? dims.width * scaleX : image.width;
+          const height = dims?.height ? dims.height * scaleY : image.height;
+          ctx.drawImage(img, x, y, width, height);
+          resolve();
+        };
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      ctx.restore();
+      if (save) {
+        const dataURL = canvasRef?.current?.toDataURL("image/png") as string;
+        saveAs(dataURL, `${options.product_type.value}-design.png`);
+      }
+    });
+  };
+
+  const saveConfiguration = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx || !tshirtRef.current) return;
+
+    const templateImage = new Image();
+    templateImage.src = `/${options.color.value}-${options.product_type.value}-template.png`;
+
+    templateImage.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      canvas.width = templateImage.width;
+      canvas.height = templateImage.height;
+
+      ctx.drawImage(templateImage, 0, 0);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, templateImage.width, templateImage.height);
+      ctx.clip();
+
+      drawImagesOnCanvas(ctx, templateImage, true);
+    };
+  };
 
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-4 mb-20 pb-20">
+      <canvas ref={canvasRef} style={{ display: "none" }} />
       <div
         ref={containerRef}
         className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -89,7 +158,7 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
           >
             <NextImage
               fill
-              alt="phone image"
+              alt={`${options.product_type.label}-template`}
               src={`/${options.color.value}-${options.product_type.value}-template.png`}
               className="pointer-events-none z-10 select-none absolute inset-0 w-full h-full object-cover"
             />
@@ -100,8 +169,8 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
           <Rnd
             key={index}
             default={{
-              x: renderedDimensions[index]?.x ?? 150,
-              y: renderedDimensions[index]?.y ?? 205,
+              x: renderedDimensions[index]?.x ?? 200,
+              y: renderedDimensions[index]?.y ?? 200,
               height: renderedDimensions[index]?.height ?? image?.height / 4,
               width: renderedDimensions[index]?.width ?? image?.width / 4,
             }}
@@ -298,10 +367,10 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
                 {formatPrice((BASE_PRICE + options.product_type.price) / 100)}
               </p>
               <Button
-                // isLoading={isPending}
-                // disabled={isPending}
+                isLoading={isProcessing}
+                disabled={isProcessing}
                 loadingText="Saving"
-                onClick={() => {}}
+                onClick={saveConfiguration}
                 size="sm"
                 className="w-full"
               >
