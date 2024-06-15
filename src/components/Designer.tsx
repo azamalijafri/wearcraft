@@ -112,7 +112,7 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
         ctx.restore();
 
         const dataURL = canvasRef?.current?.toDataURL("image/png") as string;
-        // saveAs(dataURL, `${options.product_type.value}-design.png`);
+
         if (dataURL) {
           localStorage.setItem(
             "designConfiguration",
@@ -120,17 +120,17 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
           );
           localStorage.removeItem("uploadedImages");
           router.push("/customize/preview");
+          setIsProcessing(false);
         }
       });
     } catch (error) {
+      setIsProcessing(false);
       return toast({
         title: "something went wrong",
         description: "please try again",
         variant: "destructive",
       });
     }
-
-    setIsProcessing(false);
   };
 
   const saveConfiguration = () => {

@@ -25,6 +25,7 @@ import {
 // import LoginModal from '@/components/LoginModal'
 import NextImage from "next/image";
 import { saveAs } from "file-saver";
+import { createProduct } from "@/actions/product-actions";
 
 interface DesignPreviewProps {
   design: string;
@@ -77,7 +78,9 @@ const DesignPreview = ({
   //   },
   // })
 
-  const handleCheckout = () => {};
+  const handleCheckout = () => {
+    createProduct();
+  };
 
   return (
     <>
