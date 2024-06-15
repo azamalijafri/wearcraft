@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Rnd } from "react-rnd";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { saveAs } from "file-saver";
 import NextImage from "next/image";
 import { Check, ChevronsUpDown, ArrowRight } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
@@ -72,8 +71,7 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
 
   const drawImagesOnCanvas = (
     ctx: CanvasRenderingContext2D,
-    templateImage: HTMLImageElement,
-    save: boolean
+    templateImage: HTMLImageElement
   ) => {
     if (!tshirtRef.current || !containerRef.current) return;
 
@@ -109,16 +107,34 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
       });
     });
 
-    Promise.all(imagePromises).then(() => {
-      ctx.restore();
-      if (save) {
+    try {
+      Promise.all(imagePromises).then(() => {
+        ctx.restore();
+
         const dataURL = canvasRef?.current?.toDataURL("image/png") as string;
-        saveAs(dataURL, `${options.product_type.value}-design.png`);
-      }
-    });
+        // saveAs(dataURL, `${options.product_type.value}-design.png`);
+        if (dataURL) {
+          localStorage.setItem(
+            "designConfiguration",
+            JSON.stringify({ design: dataURL, options: options })
+          );
+          localStorage.removeItem("uploadedImages");
+          router.push("/customize/preview");
+        }
+      });
+    } catch (error) {
+      return toast({
+        title: "something went wrong",
+        description: "please try again",
+        variant: "destructive",
+      });
+    }
+
+    setIsProcessing(false);
   };
 
   const saveConfiguration = () => {
+    setIsProcessing(true);
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx || !tshirtRef.current) return;
@@ -126,11 +142,14 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
     const templateImage = new Image();
     templateImage.src = `/${options.color.value}-${options.product_type.value}-template.png`;
 
-    templateImage.onload = () => {
+    templateImage.onload = async () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       canvas.width = templateImage.width;
       canvas.height = templateImage.height;
+
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.drawImage(templateImage, 0, 0);
 
@@ -139,7 +158,7 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
       ctx.rect(0, 0, templateImage.width, templateImage.height);
       ctx.clip();
 
-      drawImagesOnCanvas(ctx, templateImage, true);
+      drawImagesOnCanvas(ctx, templateImage);
     };
   };
 

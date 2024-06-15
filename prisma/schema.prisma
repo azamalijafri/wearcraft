@@ -7,47 +7,90 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum OrderStatus {
+  fulfilled
+  shipped
+  awaiting_shipment
+}
+
+enum ProductSize {
+  xs
+  sm
+  md
+  lg
+  xl
+  xxl
+}
+
+enum ProductType {
+  tshirt
+  hoodie
+}
+
+enum ProductColor {
+  white
+  black
+  green
+  red
+}
+
+model Product {
+  id       String       @id @default(cuid())
+  imageUrl String
+  size     ProductSize
+  color    ProductColor
+  type     ProductType
+  Order    Order[]
+}
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id    String  @id @default(cuid())
+  email String
+  Order Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+model Order {
+  id        String      @id @default(cuid())
+  productId String
+  product   Product     @relation(fields: [productId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+  amount    Float
+  isPaid    Boolean     @default(false)
+  status    OrderStatus @default(awaiting_shipment)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId String?
+  billingAddress    BillingAddress?  @relation(fields: [billingAddressId], references: [id])
+  billingAddressId  String?
 
-  @@unique([provider, providerAccountId])
+  createdAt DateTime @default(now())
+  updated   DateTime @updatedAt
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model ShippingAddress {
+  id          String  @id @default(cuid())
+  name        String
+  street      String
+  city        String
+  postalCode  String
+  country     String
+  state       String?
+  phoneNumber String?
+  orders      Order[]
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+model BillingAddress {
+  id          String  @id @default(cuid())
+  name        String
+  street      String
+  city        String
+  postalCode  String
+  country     String
+  state       String?
+  phoneNumber String?
+  orders      Order[]
 }

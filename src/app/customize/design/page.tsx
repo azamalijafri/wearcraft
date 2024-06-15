@@ -3,7 +3,7 @@
 import Designer from "@/components/Designer";
 import { toast } from "@/components/ui/use-toast";
 import { Loader } from "lucide-react";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface UploadedImage {
@@ -20,28 +20,41 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    const images = JSON.parse(localStorage.getItem("uploadedImages") || "[]");
-    const files = images.map((image: UploadedImage) =>
-      fetch(image?.base64)
-        .then((res) => res.blob())
-        .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }))
-        .then((file) => {
-          setIsLoading(false);
-          return { file, width: image.width, height: image.height };
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          toast({
-            title: "Error processing images",
-            description: error.message,
-            variant: "destructive",
-          });
-          router.push("/customize/upload");
-        })
-    );
+    const fetchImages = async () => {
+      setIsLoading(true);
+      try {
+        const images = JSON.parse(
+          localStorage.getItem("uploadedImages") || "[]"
+        );
+        const files = await Promise.all(
+          images.map(async (image: UploadedImage) => {
+            try {
+              const response = await fetch(image?.base64);
+              const blob = await response.blob();
+              const file = new File([blob], "image.jpg", {
+                type: "image/jpeg",
+              });
+              return { file, width: image.width, height: image.height };
+            } catch (error: any) {
+              toast({
+                title: "Something went wrong",
+                description: error.message,
+                variant: "destructive",
+              });
+              router.push("/customize/upload");
+              throw error;
+            }
+          })
+        );
+        setUploadedImages(files);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    Promise.all(files).then(setUploadedImages);
+    fetchImages();
   }, [router]);
 
   return (

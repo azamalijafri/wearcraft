@@ -18,8 +18,7 @@ interface ImageUploadProps {
 const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
   const { toast } = useToast();
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   // const { startUpload, isUploading } = useUploadThing('imageUploader', {
   //   onClientUploadComplete: ([data]) => {
@@ -46,7 +45,8 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
   };
 
   const onDropAccepted = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
+      setLoading(true);
       const formattedFiles = acceptedFiles.map(async (file) => {
         return new Promise<{
           file: File;
@@ -67,7 +67,11 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
         });
       });
 
-      Promise.all(formattedFiles).then(onUpload);
+      await Promise.all(formattedFiles)
+        .then(onUpload)
+        .then(() => {
+          setLoading(false);
+        });
     },
     [onUpload]
   );
@@ -75,8 +79,6 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
   useEffect(() => {
     localStorage.removeItem("uploadedImages");
   }, []);
-
-  const [isPending, startTransition] = useTransition();
 
   return (
     <div
@@ -107,7 +109,7 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
               <input {...getInputProps()} />
               {isDragOver ? (
                 <MousePointerSquareDashed className="h-6 w-6 text-zinc-500 mb-2" />
-              ) : isPending ? (
+              ) : loading ? (
                 <Loader2 className="animate-spin h-6 w-6 text-zinc-500 mb-2" />
               ) : (
                 <ImageIcon className="h-6 w-6 text-zinc-500 mb-2" />
@@ -123,7 +125,7 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
                   //     />
                   //   </div>
                   // ) :
-                  isPending ? (
+                  loading ? (
                     <div className="flex flex-col items-center">
                       <p>Redirecting, please wait...</p>
                     </div>
@@ -140,7 +142,7 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
                 }
               </div>
 
-              {isPending ? null : (
+              {loading ? null : (
                 <p className="text-xs text-zinc-500">PNG, JPG, JPEG</p>
               )}
             </div>

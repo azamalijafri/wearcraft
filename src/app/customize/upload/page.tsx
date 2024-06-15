@@ -2,7 +2,6 @@
 
 import Uploader from "@/components/Uploader";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
 
 const Upload = () => {
   const router = useRouter();
