@@ -30,11 +30,11 @@ export const PRODUCT_SIZE = [
   },
   {
     label: "Small (S)",
-    value: "s",
+    value: "sm",
   },
   {
     label: "Medium (M)",
-    value: "m",
+    value: "md",
   },
   {
     label: "Large (L)",

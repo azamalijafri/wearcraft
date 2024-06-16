@@ -26,6 +26,9 @@ import {
 import NextImage from "next/image";
 import { saveAs } from "file-saver";
 import { createProduct } from "@/actions/product-actions";
+import LoginModal from "./LoginModal";
+import { useUploadThing } from "@/lib/uploadthing";
+import imageCompression from "browser-image-compression";
 
 interface DesignPreviewProps {
   design: string;
@@ -43,14 +46,16 @@ const DesignPreview = ({
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useKindeBrowserClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("Creating Product");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   useEffect(() => setShowConfetti(true), []);
 
-  const tw = PRODUCT_COLORS.find(
+  const productColor = PRODUCT_COLORS.find(
     (supportedColor) => supportedColor.value === productOptions.color.value
-  )?.tw;
+  );
 
   const productType = PRODUCT_TYPE.find(
     ({ value }) => value === productOptions.product_type.value
@@ -78,8 +83,59 @@ const DesignPreview = ({
   //   },
   // })
 
-  const handleCheckout = () => {
-    createProduct();
+  const { startUpload } = useUploadThing("imageUploader");
+
+  const compressImage = async (imageBlob: File) => {
+    try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(imageBlob, options);
+      return compressedFile;
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      throw error;
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+    } else {
+      setIsLoading(true);
+      const file = new File([dataURLToBlob(design)], "design.png", {
+        type: "image/png",
+      });
+      const compressedFile = await compressImage(file);
+
+      const response = await startUpload([compressedFile]);
+
+      if (response) {
+        const productId = await createProduct({
+          imageUrl: response[0].url,
+          color: productColor?.value!,
+          size: productSize?.value!,
+          type: productType.value,
+        });
+      }
+
+      setIsLoading(false);
+    }
+  };
+
+  const dataURLToBlob = (dataURL: string) => {
+    const [header, data] = dataURL.split(",");
+    // @ts-expect-error
+    const mime = header.match(/:(.*?);/)[1];
+    const bstr = atob(data);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
   };
 
   return (
@@ -94,7 +150,7 @@ const DesignPreview = ({
         />
       </div>
 
-      {/* <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} /> */}
+      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
       <div className="mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-12">
         <div className="md:col-span-6 lg:col-span-5 md:row-span-2 md:row-end-2">
@@ -176,6 +232,9 @@ const DesignPreview = ({
                 Download <Download className="h-4 w-4 ml-1.5 inline" />
               </Button>
               <Button
+                isLoading={isLoading}
+                loadingText={loadingText}
+                disabled={isLoading}
                 onClick={() => handleCheckout()}
                 className="px-4 sm:px-6 lg:px-8"
               >
