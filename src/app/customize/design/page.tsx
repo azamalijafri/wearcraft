@@ -1,7 +1,7 @@
 "use client";
 
 import Designer from "@/components/Designer";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ const Page: React.FC = () => {
     { file: File; width: number; height: number }[]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -47,15 +48,20 @@ const Page: React.FC = () => {
           })
         );
         setUploadedImages(files);
-      } catch (error) {
-        console.error("Error fetching images:", error);
+      } catch (error: any) {
+        toast({
+          title: "Something went wrong",
+          description: error.message,
+          variant: "destructive",
+        });
+        router.replace("/customize/upload");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchImages();
-  }, [router]);
+  }, [router, toast]);
 
   return (
     <div className="h-full w-full">

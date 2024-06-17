@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn, formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import {
   BASE_PRICE,
   PRODUCT_COLORS,
@@ -29,6 +29,7 @@ import { createProduct } from "@/actions/product-actions";
 import LoginModal from "./LoginModal";
 import { useUploadThing } from "@/lib/uploadthing";
 import imageCompression from "browser-image-compression";
+import { createCheckoutSession } from "@/actions/order-actions";
 
 interface DesignPreviewProps {
   design: string;
@@ -47,7 +48,7 @@ const DesignPreview = ({
   const { toast } = useToast();
   const { user } = useKindeBrowserClient();
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState("Creating Product");
+  const [loadingText, setLoadingText] = useState("Uploading Design");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
@@ -67,21 +68,27 @@ const DesignPreview = ({
 
   let totalPrice = BASE_PRICE + productType?.price;
 
-  // const { mutate: createPaymentSession } = useMutation({
-  //   mutationKey: ['get-checkout-session'],
-  //   mutationFn: createCheckoutSession,
-  //   onSuccess: ({ url }) => {
-  //     if (url) router.push(url)
-  //     else throw new Error('Unable to retrieve payment URL.')
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: 'Something went wrong',
-  //       description: 'There was an error on our end. Please try again.',
-  //       variant: 'destructive',
-  //     })
-  //   },
-  // })
+  const { mutate: createPaymentSession } = useMutation({
+    mutationKey: ["get-checkout-session"],
+    mutationFn: createCheckoutSession,
+    onSuccess: ({ url }) => {
+      setIsLoading(false);
+      setLoadingText("Uploading Design");
+
+      if (url) router.push(url);
+      else throw new Error("Unable to retrieve payment URL.");
+    },
+    onError: () => {
+      setIsLoading(false);
+      setLoadingText("Uploading Design");
+
+      toast({
+        title: "Something went wrong",
+        description: "There was an error on our end. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const { startUpload } = useUploadThing("imageUploader");
 
@@ -113,15 +120,17 @@ const DesignPreview = ({
       const response = await startUpload([compressedFile]);
 
       if (response) {
+        setLoadingText("Creating Product");
+
         const productId = await createProduct({
           imageUrl: response[0].url,
           color: productColor?.value!,
           size: productSize?.value!,
           type: productType.value,
         });
-      }
 
-      setIsLoading(false);
+        createPaymentSession({ productId: productId! });
+      }
     }
   };
 
@@ -185,13 +194,6 @@ const DesignPreview = ({
                 <li>5 year print warranty</li>
               </ol>
             </div>
-            {/* <div>
-              <p className='font-medium text-zinc-950'>Materials</p>
-              <ol className='mt-3 text-zinc-700 list-disc list-inside'>
-                <li>High-quality, durable material</li>
-                <li>Scratch- and fingerprint resistant coating</li>
-              </ol>
-            </div> */}
           </div>
 
           <div className="mt-8">
@@ -235,7 +237,7 @@ const DesignPreview = ({
                 isLoading={isLoading}
                 loadingText={loadingText}
                 disabled={isLoading}
-                onClick={() => handleCheckout()}
+                onClick={handleCheckout}
                 className="px-4 sm:px-6 lg:px-8"
               >
                 Check out <ArrowRight className="h-4 w-4 ml-1.5 inline" />

@@ -108,23 +108,27 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
     });
 
     try {
-      Promise.all(imagePromises).then(() => {
-        ctx.restore();
+      Promise.all(imagePromises)
+        .then(() => {
+          ctx.restore();
 
-        const dataURL = canvasRef?.current?.toDataURL("image/png") as string;
+          const dataURL = canvasRef?.current?.toDataURL("image/png") as string;
 
-        if (dataURL) {
-          localStorage.setItem(
-            "designConfiguration",
-            JSON.stringify({ design: dataURL, options: options })
-          );
-          localStorage.removeItem("uploadedImages");
-          router.push("/customize/preview");
+          if (dataURL) {
+            localStorage.setItem(
+              "designConfiguration",
+              JSON.stringify({ design: dataURL, options: options })
+            );
+            localStorage.removeItem("uploadedImages");
+            router.push("/customize/preview");
+          }
+        })
+        .then(() => {
           setIsProcessing(false);
-        }
-      });
+        });
     } catch (error) {
       setIsProcessing(false);
+
       return toast({
         title: "something went wrong",
         description: "please try again",

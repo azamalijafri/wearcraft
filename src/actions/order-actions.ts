@@ -7,10 +7,15 @@ import {
   PRODUCT_TYPE,
 } from "@/constants/product-options";
 import { db } from "@/lib/db";
+import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Order } from "@prisma/client";
 
-export const createOrder = async ({ productId }: { productId: string }) => {
+export const createCheckoutSession = async ({
+  productId,
+}: {
+  productId: string;
+}) => {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
@@ -52,4 +57,27 @@ export const createOrder = async ({ productId }: { productId: string }) => {
       },
     });
   }
+
+  const stripeProduct = await stripe.products.create({
+    name: `Custom ${productType.label} (${productColor?.label})`,
+    images: [product.imageUrl],
+    default_price_data: {
+      currency: "USD",
+      unit_amount: totalPrice,
+    },
+  });
+
+  const stripeSession = await stripe.checkout.sessions.create({
+    success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/customize/preview`,
+    payment_method_types: ["card"],
+    mode: "payment",
+    metadata: {
+      userId: user.id,
+      orderId: order.id,
+    },
+    line_items: [{ price: stripeProduct.default_price as string, quantity: 1 }],
+  });
+
+  return { url: stripeSession.url };
 };

@@ -7,8 +7,7 @@ import {
   Loader2,
   MousePointerSquareDashed,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Dropzone, { FileRejection } from "react-dropzone";
 
 interface ImageUploadProps {

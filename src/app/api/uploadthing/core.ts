@@ -9,8 +9,6 @@ export const ourFileRouter = {
       return { req };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url);
-
       return { imageUrl: file.url };
     }),
 } satisfies FileRouter;
