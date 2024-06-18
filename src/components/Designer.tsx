@@ -119,7 +119,6 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
               "designConfiguration",
               JSON.stringify({ design: dataURL, options: options })
             );
-            localStorage.removeItem("uploadedImages");
             router.push("/customize/preview");
           }
         })

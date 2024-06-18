@@ -16,9 +16,15 @@ export const createProduct = async ({
   type,
 }: CreateProductProps) => {
   try {
-    const product = await db.product.create({
-      data: { color, type, size, imageUrl },
-    });
+    let product;
+
+    product = await db.product.findFirst({ where: { imageUrl } });
+
+    if (!product) {
+      product = await db.product.create({
+        data: { color, type, size, imageUrl },
+      });
+    }
 
     return product.id;
   } catch (error: any) {

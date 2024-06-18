@@ -25,27 +25,27 @@ export const PRODUCT_TYPE = [
 
 export const PRODUCT_SIZE = [
   {
-    label: "Extra Small (XS)",
+    label: "Extra Small",
     value: "xs",
   },
   {
-    label: "Small (S)",
+    label: "Small",
     value: "sm",
   },
   {
-    label: "Medium (M)",
+    label: "Medium",
     value: "md",
   },
   {
-    label: "Large (L)",
+    label: "Large",
     value: "lg",
   },
   {
-    label: "Extra Large (XL)",
+    label: "Extra Large",
     value: "xl",
   },
   {
-    label: "Double Extra Large (XXL)",
+    label: "Double Extra Large",
     value: "xxl",
   },
 ] as const;

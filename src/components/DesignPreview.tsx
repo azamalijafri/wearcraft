@@ -74,6 +74,8 @@ const DesignPreview = ({
     onSuccess: ({ url }) => {
       setIsLoading(false);
       setLoadingText("Uploading Design");
+      localStorage.removeItem("uploadedImages");
+      localStorage.removeItem("design");
 
       if (url) router.push(url);
       else throw new Error("Unable to retrieve payment URL.");
@@ -112,18 +114,31 @@ const DesignPreview = ({
       setIsLoginModalOpen(true);
     } else {
       setIsLoading(true);
-      const file = new File([dataURLToBlob(design)], "design.png", {
-        type: "image/png",
-      });
-      const compressedFile = await compressImage(file);
 
-      const response = await startUpload([compressedFile]);
+      let designId;
 
-      if (response) {
+      const designIdFromStorage = window.localStorage.getItem("designId");
+      if (designIdFromStorage) {
+        designId = window.localStorage.getItem("designId");
+      } else {
+        const file = new File([dataURLToBlob(design)], "design.png", {
+          type: "image/png",
+        });
+        const compressedFile = await compressImage(file);
+
+        const response = await startUpload([compressedFile]);
+        if (response) {
+          designId = response[0].url;
+          window.localStorage.setItem("designId", response[0].url);
+        }
+      }
+
+      if (designId) {
+        window.localStorage.setItem("designId", designId);
+
         setLoadingText("Creating Product");
-
         const productId = await createProduct({
-          imageUrl: response[0].url,
+          imageUrl: designId,
           color: productColor?.value!,
           size: productSize?.value!,
           type: productType.value,
@@ -176,7 +191,8 @@ const DesignPreview = ({
 
         <div className="mt-6 sm:col-span-7 md:row-end-1">
           <h3 className="text-3xl font-bold tracking-tight text-gray-900">
-            Your {productType.label}
+            Your {productType.label} ({productColor?.label}) (
+            {productSize?.label})
           </h3>
           <div className="mt-3 flex items-center gap-1.5 text-base">
             <Check className="h-4 w-4 text-green-500" />
