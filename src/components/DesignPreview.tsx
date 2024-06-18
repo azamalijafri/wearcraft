@@ -74,11 +74,13 @@ const DesignPreview = ({
     onSuccess: ({ url }) => {
       setIsLoading(false);
       setLoadingText("Uploading Design");
-      localStorage.removeItem("uploadedImages");
-      localStorage.removeItem("design");
 
-      if (url) router.push(url);
-      else throw new Error("Unable to retrieve payment URL.");
+      if (url) {
+        localStorage.removeItem("uploadedImages");
+        localStorage.removeItem("designConfiguration");
+        localStorage.removeItem("designId");
+        router.push(url);
+      } else throw new Error("Unable to retrieve payment URL.");
     },
     onError: () => {
       setIsLoading(false);
