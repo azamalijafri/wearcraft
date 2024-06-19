@@ -3,6 +3,7 @@ import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import UserAvatar from "./UserAvatar";
 
 const Navbar = async () => {
   const { getUser } = getKindeServerSession();
@@ -18,10 +19,11 @@ const Navbar = async () => {
             Wear<span className="text-primary">Craft</span>
           </Link>
 
-          <div className="h-full flex items-center space-x-4">
+          <div className="h-full flex items-center space-x-8">
             {user ? (
               <>
-                <Link
+                <UserAvatar userImage={user?.picture} isAdmin={isAdmin} />
+                {/* <Link
                   href="/api/auth/logout"
                   className={buttonVariants({
                     size: "sm",
@@ -40,7 +42,10 @@ const Navbar = async () => {
                   >
                     Dashboard
                   </Link>
-                ) : null}
+                ) : null} */}
+
+                <div className="h-8 w-px bg-zinc-200 hidden sm:block" />
+
                 <Link
                   href="/customize/upload"
                   className={buttonVariants({
