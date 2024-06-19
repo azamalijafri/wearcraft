@@ -121,6 +121,9 @@ export const getLoggedInUserOrders = async ({
         },
         skip,
         take,
+        orderBy: {
+          createdAt: "desc",
+        },
       }),
       db.order.count({
         where: whereClause,

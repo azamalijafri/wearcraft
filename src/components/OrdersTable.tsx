@@ -17,6 +17,7 @@ import TableSkeleton from "./skeletons/TableSkeleton";
 import { Button } from "./ui/button";
 import { getLoggedInUserOrders } from "@/actions/order-actions";
 import StatusDropdown from "@/app/dashboard/StatusDropdown";
+import OrderDetailModal, { OrderDetail } from "./modals/OrderDetailModal";
 
 const LABEL_MAP: Record<keyof typeof OrderStatus, string> = {
   awaiting_shipment: "Awaiting Shipment",
@@ -26,10 +27,13 @@ const LABEL_MAP: Record<keyof typeof OrderStatus, string> = {
 
 const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailsData, setDetailsData] = useState<any>(null);
 
   const fetchOrders = async () => {
     const response = await getLoggedInUserOrders({ currentPage, isDashboard });
     const { data } = response;
+
     return data;
   };
 
@@ -50,6 +54,11 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
 
   return (
     <div className="h-full pb-10">
+      <OrderDetailModal
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        order={detailsData}
+      />
       {!data ? (
         <TableSkeleton />
       ) : (
@@ -67,7 +76,13 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
           <TableBody>
             {data?.orders?.map((order) => (
               <TableRow key={order.id} className="bg-accent">
-                <TableCell>
+                <TableCell
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setDetailsData(order);
+                  }}
+                >
                   <div className="font-medium">
                     {order.shippingAddress?.name}
                   </div>

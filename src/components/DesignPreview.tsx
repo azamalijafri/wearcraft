@@ -8,12 +8,10 @@ import {
   PRODUCT_SIZE,
   PRODUCT_TYPE,
 } from "@/constants/product-options";
-// import { Configuration } from '@prisma/client'
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Check, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import Confetti from "react-dom-confetti";
-// import { createCheckoutSession } from './actions'
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
@@ -22,7 +20,6 @@ import {
   PRODUCT_SIZE as SIZE,
   PRODUCT_TYPE as TYPE,
 } from "@/types";
-// import LoginModal from '@/components/LoginModal'
 import NextImage from "next/image";
 import { saveAs } from "file-saver";
 import { createProduct } from "@/actions/product-actions";
@@ -128,11 +125,20 @@ const DesignPreview = ({
         });
         const compressedFile = await compressImage(file);
 
-        const response = await startUpload([compressedFile]);
-        if (response) {
-          designId = response[0].url;
-          window.localStorage.setItem("designId", response[0].url);
-        }
+        await startUpload([compressedFile])
+          .then((res) => {
+            if (res) {
+              designId = res[0].url;
+              window.localStorage.setItem("designId", res[0].url);
+            }
+          })
+          .catch(() => {
+            toast({
+              title: "something went wrong",
+              description: "please try again",
+              variant: "destructive",
+            });
+          });
       }
 
       if (designId) {
@@ -193,8 +199,7 @@ const DesignPreview = ({
 
         <div className="mt-6 sm:col-span-7 md:row-end-1">
           <h3 className="text-3xl font-bold tracking-tight text-gray-900">
-            Your {productType.label} ({productColor?.label}) (
-            {productSize?.label})
+            Your {productType.label}
           </h3>
           <div className="mt-3 flex items-center gap-1.5 text-base">
             <Check className="h-4 w-4 text-green-500" />
@@ -214,9 +219,25 @@ const DesignPreview = ({
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-0">
             <div className="bg-gray-50 p-6 sm:rounded-lg sm:p-8">
               <div className="flow-root text-sm">
+                <div className="flex items-center justify-between py-1 mt-2">
+                  <p className="text-gray-600">Color</p>
+                  <p className="font-medium text-gray-900">
+                    {productColor?.label}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between py-1 mt-2">
+                  <p className="text-gray-600">Size</p>
+                  <p className="font-medium text-gray-900">
+                    {productSize?.label}
+                  </p>
+                </div>
+
+                <div className="my-2 h-px bg-gray-200" />
+
                 <div className="flex items-center justify-between py-1 mt-2">
                   <p className="text-gray-600">Base price</p>
                   <p className="font-medium text-gray-900">

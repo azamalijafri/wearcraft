@@ -12,7 +12,6 @@ import { OrderStatus } from "@prisma/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, Loader } from "lucide-react";
 import { changeOrderStatus } from "./actions";
-import { useRouter } from "next/navigation";
 
 const LABEL_MAP: Record<keyof typeof OrderStatus, string> = {
   awaiting_shipment: "Awaiting Shipment",
@@ -29,8 +28,6 @@ const StatusDropdown = ({
   orderStatus: OrderStatus;
   currentPage: number;
 }) => {
-  const router = useRouter();
-
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({

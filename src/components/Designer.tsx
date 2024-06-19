@@ -124,6 +124,14 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
         })
         .then(() => {
           setIsProcessing(false);
+        })
+        .catch((error) => {
+          setIsProcessing(false);
+          return toast({
+            title: "something went wrong",
+            description: "image might be too large",
+            variant: "destructive",
+          });
         });
     } catch (error) {
       setIsProcessing(false);
