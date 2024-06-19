@@ -6,10 +6,12 @@ import {
   PRODUCT_SIZE,
   PRODUCT_TYPE,
 } from "@/constants/product-options";
+import { PAGE_LIMIT } from "@/constants/variables";
 import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Order } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 export const createCheckoutSession = async ({
   productId,
@@ -81,4 +83,54 @@ export const createCheckoutSession = async ({
   });
 
   return { url: stripeSession.url };
+};
+
+export const getLoggedInUserOrders = async ({
+  currentPage,
+  isDashboard,
+}: {
+  currentPage: number;
+  isDashboard?: boolean;
+}) => {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error("Invalid user data");
+  }
+
+  const skip = (currentPage - 1) * PAGE_LIMIT;
+  const take = PAGE_LIMIT;
+
+  let whereClause: { isPaid: boolean; userId: undefined | string } = {
+    isPaid: true,
+    userId: undefined,
+  };
+
+  if (!isDashboard) whereClause.userId = user?.id;
+
+  try {
+    const [orders, total] = await Promise.all([
+      db.order.findMany({
+        where: whereClause,
+        include: {
+          billingAddress: true,
+          product: true,
+          shippingAddress: true,
+          user: true,
+        },
+        skip,
+        take,
+      }),
+      db.order.count({
+        where: whereClause,
+      }),
+    ]);
+
+    return { data: { orders, total } };
+  } catch (error) {
+    console.log(error);
+
+    return { data: { orders: [], total: 0 } };
+  }
 };

@@ -1,14 +1,41 @@
-import React from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import NextImage from "next/image";
-import { User } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "./ui/button";
 import { Separator } from "./ui/separator";
+import { FaUser } from "react-icons/fa6";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const NavLink = ({
+  redirectLink,
+  label,
+}: {
+  redirectLink: string;
+  label: string;
+}) => {
+  return (
+    <Link
+      href={redirectLink}
+      className={cn(
+        buttonVariants({
+          size: "sm",
+          variant: "ghost",
+        }),
+        "font-normal"
+      )}
+    >
+      {label}
+    </Link>
+  );
+};
 
 const UserAvatar = ({
   userImage,
@@ -17,10 +44,18 @@ const UserAvatar = ({
   userImage: string | null;
   isAdmin: boolean;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   return (
-    <Popover>
+    <Popover onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger>
-        <div className="size-8 relative rounded-full">
+        <div className="size-8 relative rounded-full bg-gray-500 flex items-center justify-center">
           {userImage ? (
             <NextImage
               src={userImage}
@@ -29,32 +64,18 @@ const UserAvatar = ({
               className="rounded-full"
             />
           ) : (
-            <User className="size-full" />
+            <FaUser className="size-1/2 text-white" />
           )}
         </div>
       </PopoverTrigger>
       <PopoverContent className="flex flex-col px-0 py-1 w-fit">
+        <NavLink redirectLink="/orders" label="Orders" />
+        <Separator />
         {isAdmin ? (
-          <Link
-            href="/dashboard"
-            className={buttonVariants({
-              size: "sm",
-              variant: "ghost",
-            })}
-          >
-            Dashboard
-          </Link>
+          <NavLink redirectLink="/dashboard" label="Dashboard" />
         ) : null}
-        <Separator className="my-1" />
-        <Link
-          href="/api/auth/logout"
-          className={buttonVariants({
-            size: "sm",
-            variant: "ghost",
-          })}
-        >
-          Sign out
-        </Link>
+        <Separator />
+        <NavLink redirectLink="/api/auth/logout" label="Sign Out" />
       </PopoverContent>
     </Popover>
   );

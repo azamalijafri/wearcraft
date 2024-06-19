@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { OrderStatus } from "@prisma/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, Loader } from "lucide-react";
 import { changeOrderStatus } from "./actions";
 import { useRouter } from "next/navigation";
@@ -23,16 +23,22 @@ const LABEL_MAP: Record<keyof typeof OrderStatus, string> = {
 const StatusDropdown = ({
   id,
   orderStatus,
+  currentPage,
 }: {
   id: string;
   orderStatus: OrderStatus;
+  currentPage: number;
 }) => {
   const router = useRouter();
+
+  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["change-order-status"],
     mutationFn: changeOrderStatus,
-    onSuccess: () => router.refresh(),
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ["orders", currentPage, true] });
+    },
   });
 
   return (

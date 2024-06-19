@@ -25,7 +25,7 @@ export default async function RootLayout({
       <Providers>
         <body className={poppins.className}>
           <Navbar />
-          <main className="flex grainy-light flex-col min-h-[calc(100vh-3.5rem-1px)]">
+          <main className="flex grainy-light flex-col min-h-[calc(100vh-3.5rem-1px)] h-[calc(100vh-3.5rem-1px)]">
             <div className="flex-1 flex flex-col h-full">{children}</div>
           </main>
           <Toaster />
