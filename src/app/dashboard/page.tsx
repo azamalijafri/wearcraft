@@ -7,20 +7,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { db } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { notFound } from "next/navigation";
-import StatusDropdown from "./StatusDropdown";
-import OrdersTable from "@/components/OrdersTable";
 
 const Page = async () => {
   const { getUser } = getKindeServerSession();
@@ -31,22 +21,6 @@ const Page = async () => {
   if (!user || user.email !== SUPERADMIN_EMAIL) {
     return notFound();
   }
-
-  const orders = await db.order.findMany({
-    where: {
-      isPaid: true,
-      createdAt: {
-        gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      user: true,
-      shippingAddress: true,
-    },
-  });
 
   const lastWeekSum = await db.order.aggregate({
     where: {
@@ -117,10 +91,6 @@ const Page = async () => {
               </CardFooter>
             </Card>
           </div>
-
-          <h1 className="text-4xl font-bold tracking-tight">Incoming orders</h1>
-
-          <OrdersTable isDashboard={true} />
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -37,10 +37,14 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
     return data;
   };
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["orders", currentPage, isDashboard],
     queryFn: fetchOrders,
   });
+
+  useEffect(() => {
+    console.log(isLoading);
+  }, [isLoading]);
 
   const totalPages = data ? Math.ceil(data.total / PAGE_LIMIT) : 1;
 
@@ -113,7 +117,10 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
         </Table>
       )}
       <div className="flex justify-between items-center mt-4">
-        <Button onClick={handlePreviousPage} disabled={currentPage === 1}>
+        <Button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1 || !data || isLoading}
+        >
           Previous
         </Button>
         <span>
@@ -121,7 +128,10 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
             ? "No result found"
             : `Page ${currentPage} of ${totalPages}`}
         </span>
-        <Button onClick={handleNextPage} disabled={currentPage === totalPages}>
+        <Button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages || !data || isLoading}
+        >
           Next
         </Button>
       </div>

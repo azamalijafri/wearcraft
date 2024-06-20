@@ -13,6 +13,7 @@ import { Separator } from "./ui/separator";
 import { FaUser } from "react-icons/fa6";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
 
 const NavLink = ({
   redirectLink,
@@ -69,6 +70,19 @@ const UserAvatar = ({
         </div>
       </PopoverTrigger>
       <PopoverContent className="flex flex-col px-0 py-1 w-fit">
+        <Link
+          href="/customize/upload"
+          className={cn(
+            buttonVariants({
+              size: "sm",
+              variant: "ghost",
+            }),
+            "font-normal md:hidden"
+          )}
+        >
+          Customize
+        </Link>
+        <Separator className="md:hidden" />
         <NavLink redirectLink="/orders" label="Orders" />
         <Separator />
         {isAdmin ? (

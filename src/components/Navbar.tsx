@@ -23,26 +23,6 @@ const Navbar = async () => {
             {user ? (
               <>
                 <UserAvatar userImage={user?.picture} isAdmin={isAdmin} />
-                {/* <Link
-                  href="/api/auth/logout"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "ghost",
-                  })}
-                >
-                  Sign out
-                </Link>
-                {isAdmin ? (
-                  <Link
-                    href="/dashboard"
-                    className={buttonVariants({
-                      size: "sm",
-                      variant: "ghost",
-                    })}
-                  >
-                    Dashboard
-                  </Link>
-                ) : null} */}
 
                 <div className="h-8 w-px bg-zinc-200 hidden sm:block" />
 
