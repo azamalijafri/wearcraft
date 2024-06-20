@@ -46,7 +46,7 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
     console.log(isLoading);
   }, [isLoading]);
 
-  const totalPages = data ? Math.ceil(data.total / PAGE_LIMIT) : 1;
+  const totalPages = data?.total ? Math.ceil(data.total / PAGE_LIMIT) : 0;
 
   const handlePreviousPage = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
@@ -123,14 +123,18 @@ const OrdersTable = ({ isDashboard }: { isDashboard?: boolean }) => {
         >
           Previous
         </Button>
-        <span>
-          {data?.orders.length == 0
-            ? "No result found"
-            : `Page ${currentPage} of ${totalPages}`}
-        </span>
+        {data && !isLoading && (
+          <span>
+            {data?.orders.length == 0
+              ? "No Orders"
+              : `Page ${currentPage} of ${totalPages}`}
+          </span>
+        )}
         <Button
           onClick={handleNextPage}
-          disabled={currentPage === totalPages || !data || isLoading}
+          disabled={
+            currentPage === totalPages || !data || isLoading || !totalPages
+          }
         >
           Next
         </Button>

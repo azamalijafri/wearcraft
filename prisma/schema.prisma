@@ -37,6 +37,8 @@ enum ProductColor {
 model Product {
   id       String       @id @default(cuid())
   imageUrl String
+  user     User         @relation(fields: [userId], references: [id])
+  userId   String
   size     ProductSize
   color    ProductColor
   type     ProductType
@@ -44,12 +46,12 @@ model Product {
 }
 
 model User {
-  id    String  @id @default(cuid())
-  email String
-  Order Order[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  email     String
+  Order     Order[]
+  Product   Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Order {

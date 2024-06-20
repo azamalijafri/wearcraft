@@ -27,6 +27,7 @@ import LoginModal from "./LoginModal";
 import { useUploadThing } from "@/lib/uploadthing";
 import imageCompression from "browser-image-compression";
 import { createCheckoutSession } from "@/actions/order-actions";
+import { nanoid } from "nanoid";
 
 interface DesignPreviewProps {
   design: string;
@@ -120,7 +121,7 @@ const DesignPreview = ({
       if (designIdFromStorage) {
         designId = window.localStorage.getItem("designId");
       } else {
-        const file = new File([dataURLToBlob(design)], "design.png", {
+        const file = new File([dataURLToBlob(design)], `${nanoid()}.png`, {
           type: "image/png",
         });
         const compressedFile = await compressImage(file);
@@ -133,6 +134,7 @@ const DesignPreview = ({
             }
           })
           .catch(() => {
+            setIsLoading(false);
             toast({
               title: "something went wrong",
               description: "please try again",
@@ -145,14 +147,23 @@ const DesignPreview = ({
         window.localStorage.setItem("designId", designId);
 
         setLoadingText("Creating Product");
-        const productId = await createProduct({
-          imageUrl: designId,
-          color: productColor?.value!,
-          size: productSize?.value!,
-          type: productType.value,
-        });
+        try {
+          const productId = await createProduct({
+            imageUrl: designId,
+            color: productColor?.value!,
+            size: productSize?.value!,
+            type: productType.value,
+          });
 
-        createPaymentSession({ productId: productId! });
+          createPaymentSession({ productId: productId! });
+        } catch (error: any) {
+          setIsLoading(false);
+          toast({
+            title: "something went wrong",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       }
     }
   };

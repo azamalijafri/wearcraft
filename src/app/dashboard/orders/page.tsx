@@ -1,7 +1,7 @@
 import OrdersTable from "@/components/OrdersTable";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
       <div className="max-w-7xl w-full mx-auto flex flex-col sm:gap-4 sm:py-4 min-h-screen">
@@ -14,4 +14,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
