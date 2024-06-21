@@ -42,9 +42,8 @@ model ShopProduct {
   type        ProductType
   user        User         @relation(fields: [userId], references: [id])
   userId      String
-  byWearCraft Boolean?     @default(false)
-  isPublished Boolean?     @default(false)
-  rating      Float?       @default(0)
+  byWearCraft Boolean      @default(false)
+  isPublished Boolean      @default(false)
 }
 
 model CheckoutProduct {
@@ -58,6 +57,7 @@ model CheckoutProduct {
 
 model User {
   id           String        @id @default(cuid())
+  name         String
   email        String
   orders       Order[]
   createdAt    DateTime      @default(now())

@@ -83,7 +83,7 @@ const UserAvatar = ({
           Customize
         </Link>
         <Separator className="md:hidden" />
-        <NavLink redirectLink="/orders" label="Orders" />
+        <NavLink redirectLink="/my/orders" label="Orders" />
         <Separator />
         {isAdmin ? (
           <NavLink redirectLink="/dashboard" label="Dashboard" />

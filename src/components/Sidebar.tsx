@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
 
   const toggleSidebar = () => {
@@ -35,7 +35,7 @@ const Sidebar = () => {
       <div
         className={`fixed inset-0 z-max flex flex-col items-start justify-start py-4 bg-primary transition-transform transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:relative h-full md:h-[calc(100vh-3.5rem)] w-3/4 md:w-32 lg:w-40`}
+        } md:translate-x-0 md:relative h-full md:h-[calc(100vh-3.5rem)] w-3/4 md:w-32 lg:w-44`}
       >
         <nav className="w-full h-full md:mt-0 mt-[3.5rem]">
           <ul className="flex flex-col gap-3">

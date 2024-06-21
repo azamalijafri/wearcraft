@@ -139,7 +139,12 @@ const CreateProduct = ({
         localStorage.removeItem("designConfiguration");
         localStorage.removeItem("designId");
 
-        router.replace(`/product/${productId}`);
+        const redirectUrl = byWearCraft
+          ? "/dashboard/products"
+          : "/my/products";
+
+        router.replace(redirectUrl);
+        router.refresh();
       } catch (error: any) {
         setIsLoading(false);
         toast({

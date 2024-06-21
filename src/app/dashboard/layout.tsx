@@ -7,7 +7,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       <div className="fixed">
         <Sidebar />
       </div>
-      <div className="flex-1 p-4 md:ml-32 lg:ml-40 h-full mt-8 -z-10 md:z-0">
+      <div className="flex-1 p-4 md:ml-32 lg:ml-44 h-full mt-8 -z-10 md:z-0">
         {children}
       </div>
     </div>

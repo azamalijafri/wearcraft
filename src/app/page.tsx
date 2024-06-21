@@ -47,7 +47,7 @@ export default function Home() {
               src="/hero-image-1.png"
               fill
               alt="hero-image"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover pointer-events-none select-none"
             />
           </div>
         </div>
