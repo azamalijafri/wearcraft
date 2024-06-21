@@ -75,6 +75,9 @@ const config = {
       zIndex: {
         max: "9999",
       },
+      flex: {
+        "0.5": "0.5 0.5 0%",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

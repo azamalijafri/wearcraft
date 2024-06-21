@@ -22,7 +22,7 @@ import {
 } from "@/types";
 import NextImage from "next/image";
 import { saveAs } from "file-saver";
-import { createProduct } from "@/actions/product-actions";
+import { createCheckoutProduct } from "@/actions/product-actions";
 import LoginModal from "./LoginModal";
 import { useUploadThing } from "@/lib/uploadthing";
 import imageCompression from "browser-image-compression";
@@ -148,7 +148,7 @@ const DesignPreview = ({
 
         setLoadingText("Creating Product");
         try {
-          const productId = await createProduct({
+          const productId = await createCheckoutProduct({
             imageUrl: designId,
             color: productColor?.value!,
             size: productSize?.value!,

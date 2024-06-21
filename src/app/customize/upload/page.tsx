@@ -3,6 +3,7 @@
 import Uploader from "@/components/Uploader";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const Upload = () => {
   const router = useRouter();
@@ -27,6 +28,11 @@ const Upload = () => {
       });
     }
   };
+
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
+
   return <Uploader onUpload={handleUpload} />;
 };
 

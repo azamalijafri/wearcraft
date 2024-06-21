@@ -10,7 +10,7 @@ const Page = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-4xl font-bold tracking-tight">Our Products</h1>
             <Link
-              href={"/customize/upload?onlycreate=true"}
+              href={"/customize/upload?onlycreate=true&bywearcraft=true"}
               className={buttonVariants()}
             >
               Create Product

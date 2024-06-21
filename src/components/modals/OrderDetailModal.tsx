@@ -1,16 +1,10 @@
 "use client ";
-import React, { Dispatch, SetStateAction } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dispatch, SetStateAction } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   BillingAddress,
   OrderStatus,
-  Product,
+  CheckoutProduct,
   ShippingAddress,
   User,
 } from "@prisma/client";
@@ -33,7 +27,7 @@ import { Loader } from "lucide-react";
 export type OrderDetail = {
   id: string;
   productId: string;
-  product: Product;
+  product: CheckoutProduct;
   user: User;
   userId: string;
   amount: number;

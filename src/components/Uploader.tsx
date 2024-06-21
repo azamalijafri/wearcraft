@@ -7,7 +7,7 @@ import {
   Loader2,
   MousePointerSquareDashed,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Dropzone, { FileRejection } from "react-dropzone";
 
 interface ImageUploadProps {
@@ -74,10 +74,6 @@ const Uploader: React.FC<ImageUploadProps> = ({ onUpload }) => {
     },
     [onUpload]
   );
-
-  useEffect(() => {
-    localStorage.removeItem("uploadedImages");
-  }, []);
 
   return (
     <div
