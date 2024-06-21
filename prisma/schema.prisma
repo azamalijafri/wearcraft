@@ -34,35 +34,43 @@ enum ProductColor {
   red
 }
 
-model Product {
+model ShopProduct {
+  id        String       @id @default(cuid())
+  imageUrl  String
+  color     ProductColor
+  type      ProductType
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+  isByAdmin Boolean
+}
+
+model CheckoutProduct {
   id       String       @id @default(cuid())
   imageUrl String
-  user     User         @relation(fields: [userId], references: [id])
-  userId   String
   size     ProductSize
   color    ProductColor
   type     ProductType
-  Order    Order[]
+  orders   Order[]
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String
-  Order     Order[]
-  Product   Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String        @id @default(cuid())
+  email        String
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  shopProducts ShopProduct[]
 }
 
 model Order {
-  id        String      @id @default(cuid())
+  id        String          @id @default(cuid())
   productId String
-  product   Product     @relation(fields: [productId], references: [id])
-  user      User        @relation(fields: [userId], references: [id])
+  product   CheckoutProduct @relation(fields: [productId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
   userId    String
   amount    Float
-  isPaid    Boolean     @default(false)
-  status    OrderStatus @default(awaiting_shipment)
+  isPaid    Boolean         @default(false)
+  status    OrderStatus     @default(awaiting_shipment)
 
   shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
   shippingAddressId String?

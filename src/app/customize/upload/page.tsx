@@ -2,18 +2,23 @@
 
 import Uploader from "@/components/Uploader";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Upload = () => {
   const router = useRouter();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+
+  const currentParams = new URLSearchParams(searchParams);
+
+  const nextUrl = `/customize/design?${currentParams.toString()}`;
 
   const handleUpload = (
     files: { file: File; width: number; height: number }[]
   ) => {
     try {
       localStorage.setItem("uploadedImages", JSON.stringify(files));
-      router.push("/customize/design");
+      router.push(nextUrl);
     } catch (error) {
       toast({
         title: "something went wrong",

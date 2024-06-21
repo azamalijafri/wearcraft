@@ -23,13 +23,13 @@ export const createProduct = async ({
     if (!user) throw new Error("unauthorized access");
 
     let product;
-    product = await db.product.findFirst({
-      where: { imageUrl, userId: user.id },
+    product = await db.checkoutProduct.findFirst({
+      where: { imageUrl },
     });
 
     if (!product) {
-      product = await db.product.create({
-        data: { color, type, size, imageUrl, userId: user.id },
+      product = await db.checkoutProduct.create({
+        data: { color, type, size, imageUrl },
       });
     }
 

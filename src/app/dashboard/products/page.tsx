@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 const Page = () => {
   return (
@@ -8,7 +9,12 @@ const Page = () => {
         <div className="flex flex-col gap-12 h-full">
           <div className="flex items-center justify-between">
             <h1 className="text-4xl font-bold tracking-tight">Our Products</h1>
-            <Button>Create Product</Button>
+            <Link
+              href={"/customize/upload?onlycreate=true"}
+              className={buttonVariants()}
+            >
+              Create Product
+            </Link>
           </div>
           <Separator />
         </div>

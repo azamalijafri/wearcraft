@@ -11,7 +11,6 @@ import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Order } from "@prisma/client";
-import { NextResponse } from "next/server";
 
 export const createCheckoutSession = async ({
   productId,
@@ -32,7 +31,9 @@ export const createCheckoutSession = async ({
     },
   });
 
-  const product = await db.product.findFirst({ where: { id: productId } });
+  const product = await db.checkoutProduct.findFirst({
+    where: { id: productId },
+  });
 
   if (!product) throw new Error("Product not found");
 

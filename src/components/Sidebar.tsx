@@ -44,7 +44,7 @@ const Sidebar = () => {
                 <Link
                   href={item.href}
                   className={cn(
-                    `flex gap-2 items-center w-full transition-all p-2 md:text-sm lg:text-base ${
+                    `flex gap-2 items-center w-full transition-all py-2 px-4 md:text-sm lg:text-base ${
                       pathname === item.href
                         ? "text-primary bg-white font-medium"
                         : "text-white"

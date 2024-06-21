@@ -5,7 +5,7 @@ import { Rnd } from "react-rnd";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import NextImage from "next/image";
 import { Check, ChevronsUpDown, ArrowRight } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
@@ -32,6 +32,15 @@ interface DesignerProps {
 const Designer = ({ uploadedImages }: DesignerProps) => {
   const { toast } = useToast();
   const router = useRouter();
+
+  const onlycreate = useSearchParams().get("onlycreate") == "true";
+  const searchParams = useSearchParams();
+
+  const currentParams = new URLSearchParams(searchParams);
+
+  const nextUrl = `/customize/${
+    onlycreate ? "create" : "preview"
+  }?${currentParams.toString()}`;
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -119,7 +128,8 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
               "designConfiguration",
               JSON.stringify({ design: dataURL, options: options })
             );
-            router.push("/customize/preview");
+
+            router.push(nextUrl);
           }
         })
         .then(() => {
@@ -255,7 +265,7 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
 
           <div className="px-8 pb-12 pt-8">
             <h2 className="tracking-tight font-bold text-3xl">
-              Customize Your Outfit
+              {onlycreate ? "Configure the Product" : "Customize Your Outfit"}
             </h2>
 
             <div className="w-full h-px bg-zinc-200 my-6" />
@@ -341,49 +351,52 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
                   </DropdownMenu>
                 </div>
 
-                <div className="relative flex flex-col gap-3 w-full">
-                  <Label>Sizes</Label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between"
-                      >
-                        {options.product_size.label}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {PRODUCT_SIZE.map((product_size) => (
-                        <DropdownMenuItem
-                          key={product_size.label}
-                          className={cn(
-                            "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
-                            {
-                              "bg-zinc-100":
-                                product_size.label ===
-                                options.product_size.label,
-                            }
-                          )}
-                          onClick={() => {
-                            setOptions((prev) => ({ ...prev, product_size }));
-                          }}
+                {!onlycreate && (
+                  <div className="relative flex flex-col gap-3 w-full">
+                    <Label>Sizes</Label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full justify-between"
                         >
-                          <Check
+                          {options.product_size.label}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        {PRODUCT_SIZE.map((product_size) => (
+                          <DropdownMenuItem
+                            key={product_size.label}
                             className={cn(
-                              "mr-2 h-4 w-4",
-                              product_size.label === options.product_size.label
-                                ? "opacity-100"
-                                : "opacity-0"
+                              "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
+                              {
+                                "bg-zinc-100":
+                                  product_size.label ===
+                                  options.product_size.label,
+                              }
                             )}
-                          />
-                          {product_size.label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                            onClick={() => {
+                              setOptions((prev) => ({ ...prev, product_size }));
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                product_size.label ===
+                                  options.product_size.label
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {product_size.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -393,9 +406,11 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
           <div className="h-px w-full bg-zinc-200" />
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full flex gap-6 items-center">
-              <p className="font-medium whitespace-nowrap">
-                {formatPrice((BASE_PRICE + options.product_type.price) / 100)}
-              </p>
+              {!onlycreate && (
+                <p className="font-medium whitespace-nowrap">
+                  {formatPrice((BASE_PRICE + options.product_type.price) / 100)}
+                </p>
+              )}
               <Button
                 isLoading={isProcessing}
                 disabled={isProcessing}

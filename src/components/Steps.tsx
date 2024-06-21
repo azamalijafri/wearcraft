@@ -1,9 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
-const STEPS = [
+const CHECKOUT_STEPS = [
   {
     name: "Step 1: Add image",
     description: "Upload the designs",
@@ -21,8 +21,30 @@ const STEPS = [
   },
 ];
 
+const CREATE_STEPS = [
+  {
+    name: "Step 1: Add image",
+    description: "Upload the designs",
+    url: "/upload",
+  },
+  {
+    name: "Step 2: Customize design",
+    description: "Show your creativity",
+    url: "/design",
+  },
+  {
+    name: "Step 3: Create Product",
+    description: "Create the final design",
+    url: "/create",
+  },
+];
+
 const Steps = () => {
   const pathname = usePathname();
+
+  const onlycreate = useSearchParams().get("onlycreate");
+
+  const STEPS = onlycreate == "true" ? CREATE_STEPS : CHECKOUT_STEPS;
 
   return (
     <ol className="rounded-md bg-white lg:flex lg:rounded-none lg:border-l lg:border-r lg:border-gray-200">
