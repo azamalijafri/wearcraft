@@ -1,19 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Poppins, Recursive } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import Providers from "@/components/Providers";
-const recursive = Recursive({ subsets: ["latin"] });
-const inter = Inter({ subsets: ["latin"] });
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
 });
-export const metadata: Metadata = {
-  title: "WearCraft",
-  description: "Creat custom outfits.",
-};
 
 export default async function RootLayout({
   children,

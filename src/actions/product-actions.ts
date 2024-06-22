@@ -1,5 +1,6 @@
 "use server";
 
+import { PAGE_LIMIT, PRODUCTS_LIMIT } from "@/constants/variables";
 import { db } from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { ProductColor, ProductSize, ProductType } from "@prisma/client";
@@ -93,4 +94,33 @@ export const createShopProduct = async ({
     // throw new Error(error.message);
     throw new Error(error.message);
   }
+};
+
+export const getWearCraftProducts = async ({
+  pageParam = 0,
+}: {
+  pageParam: number;
+}) => {
+  const products = await db.shopProduct.findMany({
+    where: {
+      byWearCraft: true,
+    },
+    include: {
+      user: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: pageParam * PRODUCTS_LIMIT,
+    take: PRODUCTS_LIMIT,
+  });
+
+  const totalProducts = await db.shopProduct.count({
+    where: { byWearCraft: true },
+  });
+
+  const nextPage =
+    (pageParam + 1) * PRODUCTS_LIMIT < totalProducts ? pageParam + 1 : null;
+
+  return { products, nextPage };
 };

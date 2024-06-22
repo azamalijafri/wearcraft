@@ -44,6 +44,9 @@ model ShopProduct {
   userId      String
   byWearCraft Boolean      @default(false)
   isPublished Boolean      @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model CheckoutProduct {
