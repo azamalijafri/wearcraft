@@ -119,7 +119,7 @@ const CreateProduct = ({
 
       setLoadingText("Creating Product");
       try {
-        const productId = await createShopProduct({
+        await createShopProduct({
           title: title,
           imageUrl: designId,
           color: productColor?.value!,

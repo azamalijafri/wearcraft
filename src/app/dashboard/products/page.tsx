@@ -4,36 +4,46 @@ import { getWearCraftProducts } from "@/actions/product-actions";
 import ProductCard from "@/components/products/ProductCard";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/components/ui/use-toast";
 import { ShopProduct, User } from "@prisma/client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef } from "react";
+import axios, { AxiosError } from "axios";
 
 const Page = () => {
-  const fetchProducts = async ({ pageParam = 0 }): Promise<any> => {
-    const response = await fetch(`/api/products?page=${pageParam}`);
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    console.log(response);
+  const { toast } = useToast();
+  const router = useRouter();
 
-    return response.json();
+  const fetchProducts = async ({ pageParam = 0 }): Promise<any> => {
+    try {
+      const response = await axios.get(
+        `/api/dashboard/products?page=${pageParam}`
+      );
+      console.log(response.data);
+
+      return response.data;
+    } catch (error: any) {
+      toast({
+        title: "something went wrong",
+        description: error.response.data.message,
+        variant: "destructive",
+      });
+      router.push("/");
+    }
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["dashboard-products"],
       queryFn: ({ pageParam }) => fetchProducts({ pageParam }),
       initialPageParam: 0,
-      getNextPageParam: (lastPage, allPages) =>
-        lastPage.nextPage ? allPages.length + 1 : undefined,
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage?.nextPage ?? undefined;
+      },
     });
-
-  // const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-  //   useInfiniteQuery("products", fetchProducts, {
-  //     getNextPageParam: (lastPage, pages) => lastPage.nextPage ?? false,
-  //   });
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -55,19 +65,7 @@ const Page = () => {
     [isFetchingNextPage, fetchNextPage, hasNextPage]
   );
 
-  console.log(data?.pages[0]);
-
-  console.log(data?.pages[0]?.products);
-
-  // const products = useMemo(() => {
-  //   return data?.pages ? JSON.parse(data?.pages[0]?.products?.value) : [];
-  // }, [data]);
-
-  const products = data ? data.pages.flatMap((page) => page.products) : [];
-
-  console.log(products);
-
-  if (!products) return <Loader className="animate-spin" />;
+  const products = data ? data.pages.flatMap((page) => page?.products) : [];
 
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
@@ -84,19 +82,34 @@ const Page = () => {
           </Link>
         </div>
         <Separator />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {products?.map((product, index) => {
-            if (index === products.length - 1) {
-              return (
-                <div ref={lastProductRef} key={product.id}>
-                  <ProductCard product={product} />
-                </div>
-              );
-            } else {
-              return <ProductCard key={product.id} product={product} />;
-            }
-          })}
-        </div>
+        {!isLoading && !products && (
+          <div className="w-full h-full flex items-center justify-center">
+            <h1 className="font-bold">No Products Found</h1>
+          </div>
+        )}
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <Loader className="animate-spin size-8" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {products &&
+              products?.map((product, index) => {
+                if (index === products.length - 1) {
+                  return (
+                    <div ref={lastProductRef} key={product?.id}>
+                      <ProductCard product={product} />
+                    </div>
+                  );
+                } else {
+                  return <ProductCard key={product.id} product={product} />;
+                }
+              })}
+          </div>
+        )}
+        {isFetchingNextPage && (
+          <Loader className="animate-spin h-6 w-full mt-4" />
+        )}
       </div>
     </div>
   );

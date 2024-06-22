@@ -7,12 +7,15 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 const Page = () => {
-  const [designConfig, setDesignConfig] = useState<any | null>(null);
+  // const [designConfig, setDesignConfig] = useState<any | null>(null);
+  const [pathname, setPathname] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const config = localStorage.getItem("designConfiguration");
-    if (config) setDesignConfig(config);
+    // const config = localStorage.getItem("designConfiguration");
+    // if (config) setDesignConfig(config);
+    const redirectUrl = localStorage.getItem("redirectUrl");
+    if (redirectUrl) setPathname(redirectUrl);
   }, []);
 
   const { data } = useQuery({
@@ -23,8 +26,9 @@ const Page = () => {
   });
 
   if (data?.success) {
-    if (designConfig) {
-      router.push(`/customize/preview`);
+    if (pathname) {
+      localStorage.removeItem("redirectUrl");
+      router.push(pathname);
     } else {
       router.push("/");
     }
