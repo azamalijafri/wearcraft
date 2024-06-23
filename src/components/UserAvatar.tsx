@@ -18,9 +18,11 @@ import { ArrowRight } from "lucide-react";
 const NavLink = ({
   redirectLink,
   label,
+  tw,
 }: {
   redirectLink: string;
   label: string;
+  tw?: string;
 }) => {
   return (
     <Link
@@ -30,7 +32,7 @@ const NavLink = ({
           size: "sm",
           variant: "ghost",
         }),
-        "font-normal"
+        `font-normal ${tw}`
       )}
     >
       {label}
@@ -70,18 +72,13 @@ const UserAvatar = ({
         </div>
       </PopoverTrigger>
       <PopoverContent className="flex flex-col px-0 py-1 w-fit">
-        <Link
-          href="/customize/upload"
-          className={cn(
-            buttonVariants({
-              size: "sm",
-              variant: "ghost",
-            }),
-            "font-normal md:hidden"
-          )}
-        >
-          Customize
-        </Link>
+        <NavLink redirectLink="/products" label="Products" tw="md:hidden" />
+        <Separator className="md:hidden" />
+        <NavLink
+          redirectLink="/customize/upload"
+          label="Customize"
+          tw="md:hidden"
+        />
         <Separator className="md:hidden" />
         <NavLink redirectLink="/my/orders" label="Orders" />
         <Separator />

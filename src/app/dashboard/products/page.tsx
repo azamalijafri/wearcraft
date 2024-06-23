@@ -1,17 +1,15 @@
 "use client";
 
-import { getWearCraftProducts } from "@/actions/product-actions";
 import ProductCard from "@/components/products/ProductCard";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
-import { ShopProduct, User } from "@prisma/client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useRef } from "react";
-import axios, { AxiosError } from "axios";
+import { useCallback, useRef } from "react";
+import axios from "axios";
 
 const Page = () => {
   const { toast } = useToast();

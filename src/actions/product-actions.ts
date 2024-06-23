@@ -107,6 +107,7 @@ export const getWearCraftProducts = async ({
     },
     include: {
       user: true,
+      ratings: true,
     },
     orderBy: {
       createdAt: "desc",

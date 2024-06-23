@@ -34,6 +34,18 @@ enum ProductColor {
   red
 }
 
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isAdmin      Boolean       @default(false)
+  shopProducts ShopProduct[]
+  ratings      Rating[]
+}
+
 model ShopProduct {
   id          String       @id @default(cuid())
   title       String
@@ -44,9 +56,18 @@ model ShopProduct {
   userId      String
   byWearCraft Boolean      @default(false)
   isPublished Boolean      @default(false)
-  rating      Float        @default(0)
+  ratings     Rating[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime?    @updatedAt
+}
+
+model Rating {
+  id        String      @id @default(cuid())
+  value     Int
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  productId String
+  product   ShopProduct @relation(fields: [productId], references: [id])
 }
 
 model CheckoutProduct {
@@ -56,17 +77,6 @@ model CheckoutProduct {
   color    ProductColor
   type     ProductType
   orders   Order[]
-}
-
-model User {
-  id           String        @id @default(cuid())
-  name         String
-  email        String
-  orders       Order[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  isAdmin      Boolean       @default(false)
-  shopProducts ShopProduct[]
 }
 
 model Order {

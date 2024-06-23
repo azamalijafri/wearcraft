@@ -2,16 +2,22 @@ import NextImage from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { ShopProduct, User } from "@prisma/client";
+import { Rating as ProductRating, ShopProduct, User } from "@prisma/client";
 import { Rating } from "react-simple-star-rating";
 
 const ProductCard = ({
   product,
   addToCart,
 }: {
-  product: ShopProduct & { user: User };
+  product: ShopProduct & { user: User } & { ratings: ProductRating[] };
   addToCart?: boolean;
 }) => {
+  let rating = product.ratings.reduce((acc, rating) => {
+    return acc + rating.value;
+  }, 0);
+
+  rating = product?.ratings?.length > 0 ? rating / product.ratings.length : 0;
+
   return (
     <Card className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center relative">
       <Link
@@ -30,7 +36,7 @@ const ProductCard = ({
       <div className="flex flex-col w-full text-zinc-800 items-center">
         <h3 className="truncate font-extrabold lg:text-lg">{product?.title}</h3>
         <Rating
-          initialValue={product?.rating}
+          initialValue={rating}
           size={15}
           readonly={true}
           SVGstyle={{ display: "inline" }}
