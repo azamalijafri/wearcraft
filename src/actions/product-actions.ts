@@ -125,3 +125,51 @@ export const getWearCraftProducts = async ({
 
   return { products, nextPage };
 };
+
+export const getAllProducts = async ({
+  pageParam = 0,
+  colors,
+  types,
+  searchQuery,
+}: {
+  pageParam: number;
+  colors: string[];
+  types: string[];
+  searchQuery: string;
+}) => {
+  const filters: any = {};
+
+  if (colors.length > 0) {
+    filters.color = { in: colors };
+  }
+
+  if (types.length > 0) {
+    filters.type = { in: types };
+  }
+
+  if (searchQuery) {
+    filters.title = { contains: searchQuery, mode: "insensitive" };
+  }
+
+  const products = await db.shopProduct.findMany({
+    where: filters,
+    include: {
+      user: true,
+      ratings: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: pageParam * PRODUCTS_LIMIT,
+    take: PRODUCTS_LIMIT,
+  });
+
+  const totalProducts = await db.shopProduct.count({
+    where: filters,
+  });
+
+  const nextPage =
+    (pageParam + 1) * PRODUCTS_LIMIT < totalProducts ? pageParam + 1 : null;
+
+  return { products, nextPage };
+};

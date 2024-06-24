@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
 import axios from "axios";
+import ProductsGrid from "./ProductsGrid";
 
 const Page = () => {
   const { toast } = useToast();
@@ -20,7 +21,6 @@ const Page = () => {
       const response = await axios.get(
         `/api/dashboard/products?page=${pageParam}`
       );
-      console.log(response.data);
 
       return response.data;
     } catch (error: any) {
@@ -53,8 +53,6 @@ const Page = () => {
 
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          console.log(hasNextPage);
-
           fetchNextPage();
         }
       });
@@ -80,7 +78,7 @@ const Page = () => {
           </Link>
         </div>
         <Separator />
-        {!isLoading && !products && (
+        {/* {!isLoading && !products && (
           <div className="w-full h-full flex items-center justify-center">
             <h1 className="font-bold">No Products Found</h1>
           </div>
@@ -107,7 +105,13 @@ const Page = () => {
         )}
         {isFetchingNextPage && (
           <Loader className="animate-spin h-6 w-full mt-4" />
-        )}
+        )} */}
+        <ProductsGrid
+          isFetchingNextPage={isFetchingNextPage}
+          isLoading={isLoading}
+          lastProductRef={lastProductRef}
+          products={products}
+        />
       </div>
     </div>
   );

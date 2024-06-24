@@ -34,7 +34,7 @@ const ProductCard = ({
 
       <hr className="w-full mb-3" />
       <div className="flex flex-col w-full text-zinc-800 items-center">
-        <h3 className="truncate font-extrabold lg:text-lg">{product?.title}</h3>
+        <h3 className="truncate font-extrabold text-sm">{product?.title}</h3>
         <Rating
           initialValue={rating}
           size={15}
@@ -42,7 +42,11 @@ const ProductCard = ({
           SVGstyle={{ display: "inline" }}
           fillColor="#FF6A00"
         />
-        {addToCart && <Button className="w-full mt-4">Add to Cart</Button>}
+        {addToCart && (
+          <Button className="w-full mt-4" size={"sm"}>
+            Add to Cart
+          </Button>
+        )}
       </div>
       {!product?.byWearCraft && (
         <p className="text-gray-700 mb-2 absolute top-2 left-2 text-xs font-semibold">

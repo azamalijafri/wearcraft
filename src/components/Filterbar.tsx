@@ -1,13 +1,11 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { Filter, MenuIcon, XIcon } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-
-const PRODUCT_COLORS = ["Black", "White", "Red", "Green"];
-const PRODUCT_TYPE = ["T-shirt", "Hoodie"];
+import { PRODUCT_COLORS, PRODUCT_TYPE } from "@/constants/product-options";
 
 const Filterbar = ({
   selectedColors,
@@ -26,18 +24,6 @@ const Filterbar = ({
     setIsOpen(!isOpen);
   };
 
-  // const handleColorChange = (color: string) => {
-  //   setSelectedColors((prev) =>
-  //     prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
-  //   );
-  // };
-
-  // const handleTypeChange = (type: string) => {
-  //   setSelectedTypes((prev) =>
-  //     prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-  //   );
-  // };
-
   return (
     <div className="z-max">
       <button
@@ -49,9 +35,9 @@ const Filterbar = ({
       <div
         className={`fixed border-r-2 inset-0 z-max flex flex-col items-center justify-start py-4 transition-transform transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:relative h-full md:h-[calc(100vh-3.5rem)] w-3/4 md:w-32 lg:w-52 bg-white mt-14 md:mt-0`}
+        } md:translate-x-0 md:relative h-full md:h-[calc(100vh-3.5rem)] w-3/4 md:w-40 lg:w-52 bg-white mt-14 md:mt-0`}
       >
-        <div className="flex flex-col items-center justify-center relative">
+        <div className="flex flex-col items-center justify-center relative md:mt-10">
           <XIcon
             className="w-6 h-6 absolute -right-14 top-0 md:hidden"
             onClick={toggleFilterbar}
@@ -60,35 +46,39 @@ const Filterbar = ({
             <div className="w-full flex flex-col gap-y-2">
               <h3 className="font-semibold">Product Type</h3>
               {PRODUCT_TYPE.map((type) => (
-                <div key={type} className="flex items-center">
+                <div key={type.value} className="flex items-center">
                   <Checkbox
-                    id={type}
-                    checked={selectedTypes.includes(type)}
-                    onCheckedChange={() => onTypeChange(type)}
+                    id={type.value}
+                    checked={selectedTypes.includes(type.value)}
+                    onCheckedChange={() => onTypeChange(type.value)}
                     className="mr-2"
                   />
-                  <Label htmlFor={type}>{type}</Label>
+                  <Label htmlFor={type.value}>{type.label}</Label>
                 </div>
               ))}
             </div>
             <div className="w-full mt-4 flex flex-col gap-y-2">
               <h3 className="font-semibold">Colors</h3>
               {PRODUCT_COLORS.map((color) => (
-                <div key={color} className="flex items-center">
+                <div key={color.value} className="flex items-center">
                   <Checkbox
-                    id={color}
-                    checked={selectedColors.includes(color)}
-                    onCheckedChange={() => onColorChange(color)}
+                    id={color.value}
+                    checked={selectedColors.includes(color.value)}
+                    onCheckedChange={() => onColorChange(color.value)}
                     className="mr-2"
                   />
-                  <Label htmlFor={color}>{color}</Label>
+                  <Label htmlFor={color.value}>{color.label}</Label>
                 </div>
               ))}
             </div>
-            <Button className="mt-4 w-full flex gap-x-2" size={"sm"}>
+            {/* <Button
+              className="mt-4 w-full flex gap-x-2"
+              size={"sm"}
+              onClick={() => filterProducts({ pageParam: 0 })}
+            >
               <span>Filter</span>
               <Filter className="size-3" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
