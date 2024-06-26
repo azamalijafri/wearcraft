@@ -1,5 +1,4 @@
 import { getAllProducts } from "@/actions/product-actions";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -10,12 +9,6 @@ export async function GET(req: NextRequest) {
   const searchQuery = searchParams.get("search") || "";
 
   try {
-    const { getUser } = getKindeServerSession();
-    const kindeUser = await getUser();
-
-    if (!kindeUser)
-      return NextResponse.json({ message: "unauthorized" }, { status: 400 });
-
     const { products, nextPage } = await getAllProducts({
       pageParam,
       colors,
