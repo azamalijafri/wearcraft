@@ -14,8 +14,12 @@ import { Order } from "@prisma/client";
 
 export const createCheckoutSession = async ({
   productId,
+  quantity,
+  cancelPathname,
 }: {
   productId: string;
+  quantity: number;
+  cancelPathname: string;
 }) => {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
@@ -28,6 +32,7 @@ export const createCheckoutSession = async ({
     where: {
       userId: user.id,
       productId,
+      isPaid: false,
     },
   });
 
@@ -43,9 +48,11 @@ export const createCheckoutSession = async ({
 
   const productType = PRODUCT_TYPE.find(({ value }) => value === product.type)!;
 
+  if (!productType) throw new Error("stop tempering the data");
+
   const productSize = PRODUCT_SIZE.find(({ value }) => value === product.size);
 
-  let totalPrice = BASE_PRICE + productType?.price;
+  let totalPrice = (BASE_PRICE + productType?.price) * quantity;
 
   let order: Order;
 
@@ -57,6 +64,7 @@ export const createCheckoutSession = async ({
         amount: totalPrice / 100,
         userId: user.id,
         productId,
+        quantity,
       },
     });
   }
@@ -72,7 +80,7 @@ export const createCheckoutSession = async ({
 
   const stripeSession = await stripe.checkout.sessions.create({
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/customize/preview`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/${cancelPathname}`,
     payment_method_types: ["card"],
     mode: "payment",
     shipping_address_collection: { allowed_countries: ["IN", "US"] },

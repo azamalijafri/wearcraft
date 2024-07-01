@@ -12,7 +12,7 @@ const ProductCard = ({
   product: ShopProduct & { user: User } & { ratings: ProductRating[] };
   addToCart?: boolean;
 }) => {
-  let rating = product.ratings.reduce((acc, rating) => {
+  let rating = product?.ratings?.reduce((acc, rating) => {
     return acc + rating.value;
   }, 0);
 
@@ -21,6 +21,7 @@ const ProductCard = ({
   return (
     <Card className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center relative">
       <Link
+        target="_blank"
         href={`/product/${product?.id}`}
         className="size-48 relative cursor-pointer"
       >

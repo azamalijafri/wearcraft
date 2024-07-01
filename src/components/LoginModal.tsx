@@ -1,3 +1,5 @@
+"use client";
+
 import type { Dispatch, SetStateAction } from "react";
 import {
   Dialog,
@@ -6,9 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import Image from "next/image";
-import { LoginLink, RegisterLink } from "@kinde-oss/kinde-auth-nextjs";
-import { buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
+import { usePathname, useRouter } from "next/navigation";
 
 const LoginModal = ({
   isOpen,
@@ -17,6 +18,8 @@ const LoginModal = ({
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogContent className="absolute z-[9999999]">
@@ -33,12 +36,25 @@ const LoginModal = ({
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-6 divide-x divide-gray-200">
-          <LoginLink className={buttonVariants({ variant: "outline" })}>
+          <Button
+            onClick={() => {
+              localStorage.setItem("redirectUrl", pathname);
+              router.push("/api/auth/login");
+            }}
+            size={"sm"}
+            variant={"outline"}
+          >
             Login
-          </LoginLink>
-          <RegisterLink className={buttonVariants({ variant: "default" })}>
+          </Button>
+          <Button
+            onClick={() => {
+              localStorage.setItem("redirectUrl", pathname);
+              router.push("/api/auth/register");
+            }}
+            size={"sm"}
+          >
             Sign up
-          </RegisterLink>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

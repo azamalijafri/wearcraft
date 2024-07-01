@@ -26,7 +26,7 @@ export const createCheckoutProduct = async ({
 
     let product;
     product = await db.checkoutProduct.findFirst({
-      where: { imageUrl },
+      where: { imageUrl, size },
     });
 
     if (!product) {

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 const Page = () => {
   const [design, setDesign] = useState<string | null>(null);
   const [options, setOptions] = useState<any>(null);
+  const [quantity, setQuantity] = useState(1);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -18,7 +19,7 @@ const Page = () => {
       const designConfig = localStorage.getItem("designConfiguration");
 
       if (designConfig) {
-        const { design, options } = JSON.parse(designConfig);
+        const { design, options, quantity } = JSON.parse(designConfig);
 
         const img = new Image();
         img.onload = () => {
@@ -39,7 +40,12 @@ const Page = () => {
           ({ value }) => value === options.product_size.value
         );
 
-        if (!productType || !productSize) {
+        if (
+          !productType ||
+          !productSize ||
+          !quantity ||
+          isNaN(parseInt(quantity))
+        ) {
           localStorage.removeItem("designConfiguration");
           toast({
             title: "something went wrong",
@@ -48,6 +54,8 @@ const Page = () => {
           });
           return router.replace("/customize/upload");
         }
+
+        setQuantity(quantity);
       } else {
         router.replace("/customize/upload");
       }
@@ -61,7 +69,7 @@ const Page = () => {
   return (
     <div className="h-full w-full">
       {!isLoading && design ? (
-        <DesignPreview design={design} options={options} />
+        <DesignPreview design={design} options={options} quantity={quantity} />
       ) : (
         <div className="h-full w-full flex items-center justify-center mt-20">
           <Loader className="animate-spin" />

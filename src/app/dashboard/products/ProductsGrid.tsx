@@ -20,7 +20,7 @@ const ProductsGrid = ({
     <div className="h-full">
       {!isLoading && (!products || products.length == 0) && (
         <div className="w-full h-full flex items-center justify-center">
-          <h1 className="font-bold text-lg md:text-xl lg:text-2xl flex flex-col items-center gap-y-4 text-zinc-700">
+          <h1 className="font-bold text-lg md:text-xl lg:text-2xl flex flex-col items-center gap-y-4">
             <Frown className="size-14" />
             No Products Found
           </h1>

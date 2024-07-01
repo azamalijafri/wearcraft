@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
+import { useEffect } from "react";
 
 const ThankYou = () => {
   const searchParams = useSearchParams();
@@ -18,6 +19,10 @@ const ThankYou = () => {
     retry: true,
     retryDelay: 500,
   });
+
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   if (data === undefined) {
     return (

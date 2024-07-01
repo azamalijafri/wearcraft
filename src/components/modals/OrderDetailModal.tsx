@@ -37,6 +37,7 @@ export type OrderDetail = {
   billingAddress?: BillingAddress | null;
   createdAt: Date;
   updatedAt: Date;
+  quantity: number;
 } | null;
 
 const OrderDetailModal = ({
@@ -62,7 +63,7 @@ const OrderDetailModal = ({
     ({ value }) => value === order.product.size
   );
 
-  let totalPrice = BASE_PRICE + productType?.price;
+  let totalPrice = (BASE_PRICE + productType?.price) * order?.quantity;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -169,6 +170,13 @@ const OrderDetailModal = ({
                   </div>
 
                   <div className="my-2 h-px bg-gray-200" />
+
+                  <div className="flex items-center justify-between py-1 mt-2">
+                    <p className="text-gray-600">Quantity</p>
+                    <p className="font-medium text-gray-900">
+                      {order?.quantity}
+                    </p>
+                  </div>
 
                   <div className="flex items-center justify-between py-1 mt-2">
                     <p className="text-gray-600">Base price</p>

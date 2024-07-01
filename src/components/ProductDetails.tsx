@@ -1,16 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Rnd } from "react-rnd";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { useToast } from "@/components/ui/use-toast";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { Check, ChevronsUpDown, ArrowRight, Loader } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import {
-  PRODUCT_COLORS,
   PRODUCT_SIZE,
   PRODUCT_TYPE,
   BASE_PRICE,
@@ -23,16 +19,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RadioGroup } from "@headlessui/react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { Input } from "./ui/input";
+import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 interface ProductDetailsProps {
   productId: string;
+  user: KindeUser | null;
 }
 
-const ProductDetails = ({ productId }: ProductDetailsProps) => {
-  const { toast } = useToast();
+const ProductDetails = ({ productId, user }: ProductDetailsProps) => {
   const router = useRouter();
 
   const [options, setOptions] = useState<{
@@ -41,11 +38,12 @@ const ProductDetails = ({ productId }: ProductDetailsProps) => {
     product_size: PRODUCT_SIZE[0],
   });
 
+  const [quantity, setQuantity] = useState(1);
+
   const fetchProductDetails = async () => {
     const response = await axios.get(
       `/api/product/details?productId=${productId}`
     );
-    console.log(response.data);
 
     return response.data.product as any;
   };
@@ -55,6 +53,13 @@ const ProductDetails = ({ productId }: ProductDetailsProps) => {
     queryFn: fetchProductDetails,
   });
 
+  const handleNext = () => {
+    localStorage.setItem("productId", productId);
+    localStorage.setItem("quantity", JSON.stringify(quantity));
+    localStorage.setItem("productSize", options.product_size.value);
+    router.push("/checkout/preview");
+  };
+
   const product_type = PRODUCT_TYPE.find((type) => type.value == product?.type);
 
   if (isLoading)
@@ -63,6 +68,11 @@ const ProductDetails = ({ productId }: ProductDetailsProps) => {
         <Loader className="animate-spin size-10" />
       </div>
     );
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setQuantity(newQuantity);
+  };
 
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-4 mb-20 pb-20">
@@ -136,6 +146,33 @@ const ProductDetails = ({ productId }: ProductDetailsProps) => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+
+                <div className="relative flex flex-col gap-3 w-full">
+                  <Label>Quantity</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleQuantityChange(quantity - 1)}
+                    >
+                      -
+                    </Button>
+                    <Input
+                      type="number"
+                      value={quantity}
+                      disabled={true}
+                      onChange={(e) =>
+                        handleQuantityChange(Number(e.target.value))
+                      }
+                      className="w-16 text-center border border-gray-300 rounded-md disabled:opacity-100"
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => handleQuantityChange(quantity + 1)}
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -146,17 +183,19 @@ const ProductDetails = ({ productId }: ProductDetailsProps) => {
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">
-                {formatPrice((BASE_PRICE + product_type?.price!) / 100)}
+                {formatPrice(
+                  ((BASE_PRICE + product_type?.price!) / 100) * quantity
+                )}
               </p>
               <Button
                 // isLoading={isProcessing}
-                // disabled={isProcessing}
+                onClick={handleNext}
                 loadingText="Saving"
                 // onClick={saveConfiguration}
                 size="sm"
                 className="w-full"
               >
-                Checkout
+                Continue
                 <ArrowRight className="h-4 w-4 ml-1.5 inline" />
               </Button>
             </div>
