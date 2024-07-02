@@ -1,11 +1,9 @@
 "use client";
 
-import ProductCard from "@/components/products/ProductCard";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Loader } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
@@ -78,34 +76,6 @@ const Page = () => {
           </Link>
         </div>
         <Separator />
-        {/* {!isLoading && !products && (
-          <div className="w-full h-full flex items-center justify-center">
-            <h1 className="font-bold">No Products Found</h1>
-          </div>
-        )}
-        {isLoading ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <Loader className="animate-spin size-8" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {products &&
-              products?.map((product, index) => {
-                if (index === products.length - 1) {
-                  return (
-                    <div ref={lastProductRef} key={product?.id}>
-                      <ProductCard product={product} />
-                    </div>
-                  );
-                } else {
-                  return <ProductCard key={product.id} product={product} />;
-                }
-              })}
-          </div>
-        )}
-        {isFetchingNextPage && (
-          <Loader className="animate-spin h-6 w-full mt-4" />
-        )} */}
         <ProductsGrid
           isFetchingNextPage={isFetchingNextPage}
           isLoading={isLoading}

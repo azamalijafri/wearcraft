@@ -409,32 +409,34 @@ const Designer = ({ uploadedImages }: DesignerProps) => {
                   </div>
                 )}
 
-                <div className="relative flex flex-col gap-3 w-full">
-                  <Label>Quantity</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleQuantityChange(quantity - 1)}
-                    >
-                      -
-                    </Button>
-                    <Input
-                      type="number"
-                      value={quantity}
-                      disabled={true}
-                      onChange={(e) =>
-                        handleQuantityChange(Number(e.target.value))
-                      }
-                      className="w-16 text-center border border-gray-300 rounded-md disabled:opacity-100"
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => handleQuantityChange(quantity + 1)}
-                    >
-                      +
-                    </Button>
+                {!onlycreate && (
+                  <div className="relative flex flex-col gap-3 w-full">
+                    <Label>Quantity</Label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleQuantityChange(quantity - 1)}
+                      >
+                        -
+                      </Button>
+                      <Input
+                        type="number"
+                        value={quantity}
+                        disabled={true}
+                        onChange={(e) =>
+                          handleQuantityChange(Number(e.target.value))
+                        }
+                        className="w-16 text-center border border-gray-300 rounded-md disabled:opacity-100"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={() => handleQuantityChange(quantity + 1)}
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

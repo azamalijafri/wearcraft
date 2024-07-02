@@ -1,7 +1,9 @@
 import OrdersTable from "@/components/OrdersTable";
+import { isAdmin } from "@/utils/checkAdmin";
 import React from "react";
 
-const Page = () => {
+const Page = async () => {
+  await isAdmin();
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
       <div className="max-w-7xl w-full mx-auto flex flex-col sm:gap-4 sm:py-4 min-h-screen">
