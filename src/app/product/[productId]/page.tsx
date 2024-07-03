@@ -8,7 +8,7 @@ const page = async ({ params }: { params: { productId: string } }) => {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
   const product = await db.shopProduct.findFirst({
-    where: { id: params.productId },
+    where: { id: params.productId, isPublished: true },
   });
 
   if (!product) return notFound();

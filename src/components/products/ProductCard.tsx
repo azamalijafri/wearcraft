@@ -6,13 +6,13 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { Rating as ProductRating, ShopProduct, User } from "@prisma/client";
 import { Rating } from "react-simple-star-rating";
-import { Trash2 } from "lucide-react";
-import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
+import { ShoppingBasketIcon, Trash2, Upload } from "lucide-react";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import { useState } from "react";
-import axios from "axios";
 import { useToast } from "../ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
+import { deleteProduct, publishProduct } from "@/actions/product-actions";
 
 const ProductCard = ({
   product,
@@ -28,54 +28,83 @@ const ProductCard = ({
   rating = product?.ratings?.length > 0 ? rating / product.ratings.length : 0;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [deletingId, setDeletingId] = useState("");
+  const [alteringId, setAlteringId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [modalType, setModalType] = useState<"publish" | "delete" | "">("");
   const { toast } = useToast();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const pathname = usePathname();
+  const isdashboard = pathname.includes("dashboard");
+  const ismyproduct = pathname.includes("my");
+
+  const queryKey = isdashboard ? "dashboard-products" : "my-products";
 
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/product/delete?productId=${deletingId}`);
-      queryClient.refetchQueries({ queryKey: ["dashboard-products"] });
-      setIsOpen(false);
+      await deleteProduct({ productId: alteringId });
+      queryClient.refetchQueries({ queryKey: [queryKey] });
+      toast({
+        title: "Request Success",
+        description: "Product has been successfully deleted!",
+      });
     } catch (error) {
-      console.log(error);
-
       toast({
         variant: "destructive",
         title: "something went wrong",
         description: "pls try again",
       });
     } finally {
+      setIsOpen(false);
       setIsLoading(false);
     }
   };
 
-  const pathname = usePathname();
-  const isdashboard = pathname.includes("dashboard");
+  const handlePublish = async () => {
+    try {
+      setIsLoading(true);
+      await publishProduct({ productId: alteringId });
+      queryClient.refetchQueries({ queryKey: [queryKey] });
+      toast({
+        title: "Request Success",
+        description: "Product has been successfully published!",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "something went wrong",
+        description: "pls try again",
+      });
+    } finally {
+      setIsOpen(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handlefunc = modalType == "publish" ? handlePublish : handleDelete;
 
   return (
     <Card className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center relative">
-      {isdashboard && (
-        <div
-          className="absolute top-3 right-3 bg-red-600 p-1 rounded-md hover:bg-red-400 transition-all cursor-pointer z-50"
-          onClick={(event) => {
-            event.stopPropagation();
-            setIsOpen(true);
-            setDeletingId(product?.id);
-          }}
-        >
-          <Trash2 className="size-5 text-white" />
-        </div>
-      )}
-      <DeleteConfirmationModal
+      {isdashboard ||
+        (ismyproduct && (
+          <div
+            className="absolute top-3 right-3 bg-red-600 p-1 rounded-md hover:bg-red-400 transition-all cursor-pointer z-50"
+            onClick={(event) => {
+              event.stopPropagation();
+              setModalType("delete");
+              setIsOpen(true);
+              setAlteringId(product?.id);
+            }}
+          >
+            <Trash2 className="size-5 text-white" />
+          </div>
+        ))}
+      <ConfirmationModal
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        productId={deletingId}
         isLoading={isLoading}
-        handleDelete={handleDelete}
+        handleFunc={handlefunc}
       />
       <Link
         target="_blank"
@@ -102,7 +131,21 @@ const ProductCard = ({
         />
         {addToCart && (
           <Button className="w-full mt-4" size={"sm"}>
-            Add to Cart
+            Add to Cart <ShoppingBasketIcon className="h-4 w-4 ml-1.5 inline" />
+          </Button>
+        )}
+        {ismyproduct && !product?.isPublished && (
+          <Button
+            className="w-full mt-4"
+            size={"sm"}
+            onClick={(event) => {
+              event.stopPropagation();
+              setModalType("publish");
+              setIsOpen(true);
+              setAlteringId(product?.id);
+            }}
+          >
+            Publish <Upload className="h-4 w-4 ml-1.5 inline" />
           </Button>
         )}
       </div>

@@ -10,6 +10,7 @@ interface CreateCheckoutProductProps {
   size: ProductSize;
   color: ProductColor;
   type: ProductType;
+  title?: string;
 }
 
 export const createCheckoutProduct = async ({
@@ -17,6 +18,7 @@ export const createCheckoutProduct = async ({
   size,
   color,
   type,
+  title,
 }: CreateCheckoutProductProps) => {
   try {
     const { getUser } = getKindeServerSession();
@@ -31,7 +33,7 @@ export const createCheckoutProduct = async ({
 
     if (!product) {
       product = await db.checkoutProduct.create({
-        data: { color, type, size, imageUrl },
+        data: { color, type, size, imageUrl, title },
       });
     }
 
@@ -126,6 +128,44 @@ export const getWearCraftProducts = async ({
   return { products, nextPage };
 };
 
+export const getMyProducts = async ({
+  pageParam = 0,
+}: {
+  pageParam: number;
+}) => {
+  const { getUser } = getKindeServerSession();
+  const kindeuser = await getUser();
+
+  const user = await db.user.findFirst({ where: { id: kindeuser?.id } });
+
+  if (!user) throw new Error("unauthorized");
+
+  const products = await db.shopProduct.findMany({
+    where: {
+      userId: user?.id,
+      byWearCraft: false,
+    },
+    include: {
+      user: true,
+      ratings: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: pageParam * PRODUCTS_LIMIT,
+    take: PRODUCTS_LIMIT,
+  });
+
+  const totalProducts = await db.shopProduct.count({
+    where: { byWearCraft: true },
+  });
+
+  const nextPage =
+    (pageParam + 1) * PRODUCTS_LIMIT < totalProducts ? pageParam + 1 : null;
+
+  return { products, nextPage };
+};
+
 export const getAllProducts = async ({
   pageParam = 0,
   colors,
@@ -137,7 +177,9 @@ export const getAllProducts = async ({
   types: string[];
   searchQuery: string;
 }) => {
-  const filters: any = {};
+  const filters: any = {
+    isPublished: true,
+  };
 
   if (colors.length > 0) {
     filters.color = { in: colors };
@@ -172,4 +214,25 @@ export const getAllProducts = async ({
     (pageParam + 1) * PRODUCTS_LIMIT < totalProducts ? pageParam + 1 : null;
 
   return { products, nextPage };
+};
+
+export const deleteProduct = async ({ productId }: { productId: string }) => {
+  try {
+    await db.shopProduct.delete({ where: { id: productId } });
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
+};
+
+export const publishProduct = async ({ productId }: { productId: string }) => {
+  try {
+    await db.shopProduct.update({
+      where: { id: productId },
+      data: { isPublished: true },
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
 };

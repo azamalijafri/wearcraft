@@ -9,7 +9,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
-import ProductsGrid from "../dashboard/products/ProductsGrid";
+import ProductsGrid from "../../components/products/ProductsGrid";
 import { useDebounce } from "@uidotdev/usehooks";
 
 const Page = () => {

@@ -52,7 +52,7 @@ export const createCheckoutSession = async ({
 
   const productSize = PRODUCT_SIZE.find(({ value }) => value === product.size);
 
-  let totalPrice = (BASE_PRICE + productType?.price) * quantity;
+  let totalPrice = BASE_PRICE + productType?.price;
 
   let order: Order;
 
@@ -88,7 +88,9 @@ export const createCheckoutSession = async ({
       userId: user.id,
       orderId: order.id,
     },
-    line_items: [{ price: stripeProduct.default_price as string, quantity: 1 }],
+    line_items: [
+      { price: stripeProduct.default_price as string, quantity: quantity },
+    ],
   });
 
   return { url: stripeSession.url };

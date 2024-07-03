@@ -1,45 +1,39 @@
 "use client";
 
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { db } from "@/lib/db";
-import axios from "axios";
-import { useToast } from "../ui/use-toast";
 
-interface DeleteConfirmationModalProps {
-  productId: string;
+interface ConfirmationModalProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   isLoading: boolean;
-  handleDelete: () => void;
+  handleFunc: () => void;
 }
 
-const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
-  productId,
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
   setIsOpen,
   isLoading,
-  handleDelete,
+  handleFunc,
 }) => {
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogContent className="absolute z-[9999999]">
         <DialogHeader className="py-10">
           <DialogTitle className="text-xl text-center font-bold text-gray-900">
-            Are you sure you want to delete this product?
+            Are you sure you want to perform this action?
           </DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-6 divide-x divide-gray-200">
           <Button
-            onClick={handleDelete}
+            onClick={handleFunc}
             size={"sm"}
-            variant={"destructive"}
             disabled={isLoading}
             isLoading={isLoading}
           >
-            Delete
+            Yes
           </Button>
           <Button
             onClick={() => {
@@ -48,7 +42,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
             size={"sm"}
             variant={"outline"}
           >
-            Cancle
+            No
           </Button>
         </div>
       </DialogContent>
@@ -56,4 +50,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default ConfirmationModal;

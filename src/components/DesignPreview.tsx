@@ -194,6 +194,7 @@ const DesignPreview = ({
       showConfetti={showConfetti}
       totalPrice={totalPrice}
       quantity={quantity}
+      isCreate={true}
     />
   );
 };

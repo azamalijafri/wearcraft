@@ -88,7 +88,7 @@ const OrderDetailModal = ({
 
           <div className="mt-6 sm:col-span-7 md:row-end-1">
             <h3 className="text-3xl font-bold tracking-tight text-gray-900">
-              {productType.label}
+              {order?.product?.title ?? productType.label}
             </h3>
           </div>
 

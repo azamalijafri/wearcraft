@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     if (!productId) throw new Error("invalid product id");
 
     const product = await db.shopProduct.findUnique({
-      where: { id: productId },
+      where: { id: productId, isPublished: true },
       include: { user: true },
     });
 

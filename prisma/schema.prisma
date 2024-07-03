@@ -72,6 +72,7 @@ model Rating {
 
 model CheckoutProduct {
   id       String       @id @default(cuid())
+  title    String?
   imageUrl String
   size     ProductSize
   color    ProductColor

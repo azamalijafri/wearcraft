@@ -16,9 +16,7 @@ const Page = () => {
 
   const fetchProducts = async ({ pageParam = 0 }): Promise<any> => {
     try {
-      const response = await axios.get(
-        `/api/dashboard/products?page=${pageParam}`
-      );
+      const response = await axios.get(`/api/my/products?page=${pageParam}`);
 
       return response.data;
     } catch (error: any) {
@@ -33,7 +31,7 @@ const Page = () => {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
-      queryKey: ["dashboard-products"],
+      queryKey: ["my-products"],
       queryFn: ({ pageParam }) => fetchProducts({ pageParam }),
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPages) => {
@@ -66,10 +64,10 @@ const Page = () => {
       <div className="max-w-7xl w-full mx-auto flex flex-col gap-4 sm:py-4 min-h-screen">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
-            Our Products
+            My Products
           </h1>
           <Link
-            href={"/customize/upload?onlycreate=true&bywearcraft=true"}
+            href={"/customize/upload?onlycreate=true"}
             className={buttonVariants()}
           >
             Create Product

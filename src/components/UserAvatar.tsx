@@ -72,6 +72,8 @@ const UserAvatar = ({
         </div>
       </PopoverTrigger>
       <PopoverContent className="flex flex-col px-0 py-1 w-fit">
+        <NavLink redirectLink="/my/products" label="My Product" />
+        <Separator />
         <NavLink redirectLink="/products" label="Products" tw="md:hidden" />
         <Separator className="md:hidden" />
         <NavLink
@@ -80,7 +82,7 @@ const UserAvatar = ({
           tw="md:hidden"
         />
         <Separator className="md:hidden" />
-        <NavLink redirectLink="/my/orders" label="Orders" />
+        <NavLink redirectLink="/my/orders" label="My Orders" />
         <Separator />
         {isAdmin ? (
           <NavLink redirectLink="/dashboard" label="Dashboard" />

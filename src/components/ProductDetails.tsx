@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { Check, ChevronsUpDown, ArrowRight, Loader } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
@@ -41,11 +41,15 @@ const ProductDetails = ({ productId, user }: ProductDetailsProps) => {
   const [quantity, setQuantity] = useState(1);
 
   const fetchProductDetails = async () => {
-    const response = await axios.get(
-      `/api/product/details?productId=${productId}`
-    );
+    try {
+      const response = await axios.get(
+        `/api/product/details?productId=${productId}`
+      );
 
-    return response.data.product as any;
+      return response.data.product as any;
+    } catch (error) {
+      router.push("/");
+    }
   };
 
   const { data: product, isLoading } = useQuery({
@@ -81,7 +85,7 @@ const ProductDetails = ({ productId, user }: ProductDetailsProps) => {
           <NextImage
             fill
             alt={`product-image`}
-            src={product.imageUrl}
+            src={product?.imageUrl}
             className="pointer-events-none z-10 select-none absolute inset-0 w-full h-full object-cover"
           />
         </div>
@@ -96,7 +100,7 @@ const ProductDetails = ({ productId, user }: ProductDetailsProps) => {
 
           <div className="px-8 pb-12 pt-8">
             <h2 className="tracking-tight font-bold text-3xl">
-              {product.title}
+              {product?.title}
             </h2>
 
             <div className="w-full h-px bg-zinc-200 my-6" />

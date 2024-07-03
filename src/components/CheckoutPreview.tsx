@@ -108,6 +108,7 @@ const CheckoutPreview = ({
           color: productColor?.value!,
           size: productSize?.value! as ProductSize,
           type: productType.value,
+          title: product?.title,
         });
 
         createPaymentSession({

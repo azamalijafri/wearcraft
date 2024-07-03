@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { Button } from "./ui/button";
-import { ArrowRight, Check, Download } from "lucide-react";
+import { ArrowRight, Check, Download, Pickaxe } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
 import Confetti from "react-dom-confetti";
@@ -8,6 +8,7 @@ import LoginModal from "./LoginModal";
 import { BASE_PRICE } from "@/constants/product-options";
 import { saveAs } from "file-saver";
 import { PRODUCT_COLOR, PRODUCT_SIZE, PRODUCT_TYPE } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface PreviewProps {
   showConfetti: boolean;
@@ -24,6 +25,7 @@ interface PreviewProps {
   handleCheckout: () => void;
   quantity?: number;
   noDownload?: boolean;
+  isCreate?: boolean;
 }
 
 const Preview = ({
@@ -41,7 +43,9 @@ const Preview = ({
   handleCheckout,
   quantity,
   noDownload,
+  isCreate,
 }: PreviewProps) => {
+  const router = useRouter();
   return (
     <>
       <div
@@ -143,6 +147,16 @@ const Preview = ({
             </div>
 
             <div className="mt-8 flex justify-end pb-12 gap-4">
+              {isCreate && (
+                <Button
+                  onClick={() => {
+                    router.push(`/customize/create?onlycreate=true`);
+                  }}
+                  className="px-4 sm:px-6 lg:px-8"
+                >
+                  Create Product <Pickaxe className="h-4 w-4 ml-1.5 inline" />
+                </Button>
+              )}
               {!noDownload && (
                 <Button
                   onClick={() => {
