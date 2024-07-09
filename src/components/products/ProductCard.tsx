@@ -37,6 +37,7 @@ const ProductCard = ({
   const pathname = usePathname();
   const isdashboard = pathname.includes("dashboard");
   const ismyproduct = pathname.includes("my");
+  const isshop = pathname.includes("shop");
 
   const queryKey = isdashboard ? "dashboard-products" : "my-products";
 
@@ -86,20 +87,19 @@ const ProductCard = ({
 
   return (
     <Card className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center relative">
-      {isdashboard ||
-        (ismyproduct && (
-          <div
-            className="absolute top-3 right-3 bg-red-600 p-1 rounded-md hover:bg-red-400 transition-all cursor-pointer z-50"
-            onClick={(event) => {
-              event.stopPropagation();
-              setModalType("delete");
-              setIsOpen(true);
-              setAlteringId(product?.id);
-            }}
-          >
-            <Trash2 className="size-5 text-white" />
-          </div>
-        ))}
+      {(isdashboard || ismyproduct) && (
+        <div
+          className="absolute top-3 right-3 bg-red-600 p-1 rounded-md hover:bg-red-400 transition-all cursor-pointer z-50"
+          onClick={(event) => {
+            event.stopPropagation();
+            setModalType("delete");
+            setIsOpen(true);
+            setAlteringId(product?.id);
+          }}
+        >
+          <Trash2 className="size-5 text-white" />
+        </div>
+      )}
       <ConfirmationModal
         isOpen={isOpen}
         setIsOpen={setIsOpen}
