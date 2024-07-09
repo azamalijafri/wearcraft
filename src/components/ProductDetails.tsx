@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { Check, ChevronsUpDown, ArrowRight, Loader } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
@@ -23,6 +23,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "./ui/input";
 import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
+import { ShopProduct, User } from "@prisma/client";
 
 interface ProductDetailsProps {
   productId: string;
@@ -46,7 +47,7 @@ const ProductDetails = ({ productId, user }: ProductDetailsProps) => {
         `/api/product/details?productId=${productId}`
       );
 
-      return response.data.product as any;
+      return response.data.product as ShopProduct & { user: User };
     } catch (error) {
       router.push("/");
     }
@@ -81,11 +82,16 @@ const ProductDetails = ({ productId, user }: ProductDetailsProps) => {
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-4 mb-20 pb-20">
       <div className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+        {!product?.byWearCraft && (
+          <span className="text-sm ml-2 font-semibold absolute left-2 top-3 z-max">
+            Designed by {product?.user.name}
+          </span>
+        )}
         <div className="relative w-full bg-opacity-50 pointer-events-none aspect-[3/4]">
           <NextImage
             fill
             alt={`product-image`}
-            src={product?.imageUrl}
+            src={product?.imageUrl!}
             className="pointer-events-none z-10 select-none absolute inset-0 w-full h-full object-cover"
           />
         </div>
